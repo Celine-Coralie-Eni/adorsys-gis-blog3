@@ -72,7 +72,7 @@ export function Pagination({
   return (
     <nav
       aria-label="Course navigation"
-      className="flex items-center gap-2 rounded-md bg-black text-neutral-300"
+      className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 rounded-md bg-black text-neutral-300"
     >
       {/* Previous */}
       <Link
@@ -85,7 +85,7 @@ export function Pagination({
           isPrevDisabled
             ? "pointer-events-none cursor-not-allowed text-neutral-600"
             : "hover:text-white"
-        } px-2 py-1 text-xs`}
+        } px-1.5 py-1 text-[11px] sm:px-2 sm:py-1.5 sm:text-xs`}
       >
         <span className="flex items-center gap-1">
           <svg
@@ -109,7 +109,7 @@ export function Pagination({
       </Link>
 
       {/* Pages */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
         {visiblePages.map((page) => (
           <Link
             key={page}
@@ -124,7 +124,7 @@ export function Pagination({
               page === currentPage
                 ? "bg-neutral-800 text-white"
                 : "bg-black text-neutral-300 hover:text-white"
-            } border border-neutral-800 rounded px-2 py-1 text-xs`}
+            } border border-neutral-800 rounded px-1.5 py-1 text-[11px] sm:px-2 sm:py-1.5 sm:text-xs`}
           >
             <span>{page}</span>
           </Link>
@@ -142,7 +142,7 @@ export function Pagination({
           isNextDisabled
             ? "pointer-events-none cursor-not-allowed text-neutral-600"
             : "hover:text-white"
-        } px-2 py-1 text-xs`}
+        } px-1.5 py-1 text-[11px] sm:px-2 sm:py-1.5 sm:text-xs`}
       >
         <span className="flex items-center gap-1">
           <span className="hidden sm:inline">{t("Next")}</span>
