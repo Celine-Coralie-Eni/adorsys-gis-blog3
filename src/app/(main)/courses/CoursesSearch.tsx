@@ -20,7 +20,7 @@ export function CoursesSearch({ children }: PropsWithChildren) {
 
   return (
     <div className="w-full">
-      <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2">
+      <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2 max-w-3xl px-4 sm:px-0">
         <form
           className="flex items-center gap-2"
           onSubmit={(e) => {
@@ -69,7 +69,7 @@ export function CoursesSearch({ children }: PropsWithChildren) {
       </div>
 
       {enabled ? (
-        <div className="mt-25 sm:mt-35">
+        <div className="mt-8 sm:mt-12 md:mt-16 xl:mt-20">
           {isFetching && (
             <div className="text-xs sm:text-sm opacity-70">{t("search.searching")}</div>
           )}
@@ -91,7 +91,7 @@ export function CoursesSearch({ children }: PropsWithChildren) {
           </div>
         </div>
       ) : (
-        <div className="mt-25 sm:mt-35">{children}</div>
+        <div className="mt-8 sm:mt-12 md:mt-16 xl:mt-20">{children}</div>
       )}
     </div>
   );
