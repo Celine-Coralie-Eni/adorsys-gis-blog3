@@ -22,7 +22,7 @@ export default async function CoursesPage({ searchParams }: Props) {
   const pageParam =
     typeof params?.page === "string" ? parseInt(params.page, 10) : 1;
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-  const perPage = 6;
+  const perPage = 8;
 
   const slugs = await getAllBlogs();
   const courses = await Promise.all(
@@ -121,7 +121,7 @@ export default async function CoursesPage({ searchParams }: Props) {
             <CoursesHeader total={total} />
           </div>
           <CoursesSearch>
-            <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {pageItems.map(
                 ({ slug, title, description, lang, previews, tags, date }) => (
                   <CourseCard
