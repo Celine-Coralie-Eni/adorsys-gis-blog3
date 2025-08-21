@@ -60,4 +60,5 @@ graph TD
 ## Conclusion
 
 La certification LPIC-1 dote les administrateurs système de compétences Linux essentielles, renforçant les perspectives de carrière. Avec une étude ciblée et de la pratique, les candidats peuvent réussir les examens et établir une base solide pour des certifications Linux avancées.
+
 ---
