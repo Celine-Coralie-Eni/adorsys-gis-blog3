@@ -83,7 +83,7 @@ export default async function SingleBlogPage({ params, searchParams }: Props) {
         {slides && <Display data={slides.content} />}
 
         {course.content && (
-          <article className="prose prose-neutral lg:prose-xl mx-auto mt-8 text-justify px-8">
+          <article className="prose prose-neutral lg:prose-xl mx-auto mt-8 text-justify px-4 sm:px-6 lg:px-8">
             <div dangerouslySetInnerHTML={{ __html: course.content }} />
           </article>
         )}
