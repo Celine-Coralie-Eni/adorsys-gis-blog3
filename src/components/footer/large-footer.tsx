@@ -12,7 +12,7 @@ export default function LargeFooter() {
   return (
     <div className="bg-black/60 border-t border-white/10">
       <Container>
-        <footer className="footer py-8 sm:py-10 sm:footer-horizontal text-white/85">
+        <footer className="footer py-8 sm:py-10 sm:footer-horizontal text-white/85 gap-6 sm:gap-8">
           <aside className="text-center sm:text-left">
             <Image
               src={icon}
@@ -28,7 +28,7 @@ export default function LargeFooter() {
           </aside>
 
           {/* Social links */}
-          <div className="flex items-center justify-center md:justify-end gap-3 sm:gap-4">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 sm:gap-4">
             <a
               href="#"
               target="_blank"
@@ -72,7 +72,7 @@ export default function LargeFooter() {
           </div>
 
           {/* Mobile: COMPANY and LEGAL on same line */}
-          <div className="flex flex-row justify-center md:hidden gap-8">
+          <div className="flex flex-row flex-wrap justify-center md:hidden gap-6">
             <nav className="text-center">
               <h6 className="footer-title text-base">{t("footer.company")}</h6>
               <div className="flex flex-col gap-1">
