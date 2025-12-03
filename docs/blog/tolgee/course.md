@@ -1,6 +1,7 @@
 ---
 title: Tolgee – Internationalisation Moderne
 lang: fr
+authors: Celine-Coralie
 description: Découvrez comment intégrer Tolgee pour traduire et localiser vos applications web de manière efficace avec un flux de travail collaboratif.
 tags:
   - i18n
