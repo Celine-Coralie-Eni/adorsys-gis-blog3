@@ -37,6 +37,7 @@ export type BlogMeta = {
     tags?: string[];
     author?: string;
     readingTime?: number;
+    domain?: string;
 };
 
 export async function getAllBlogMeta(): Promise<BlogMeta[]> {
@@ -58,8 +59,9 @@ export async function getAllBlogMeta(): Promise<BlogMeta[]> {
             const author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
                 ? rawAuthors[0]
                 : typeof rawAuthors === 'string'
-                ? rawAuthors
-                : undefined;
+                    ? rawAuthors
+                    : undefined;
+            const domain = typeof data.domain === 'string' ? data.domain : undefined;
             const readingTime = calculateReadingTime(parsed.content || '');
             metas.push({
                 slug: blogSlug,
@@ -69,6 +71,7 @@ export async function getAllBlogMeta(): Promise<BlogMeta[]> {
                 tags,
                 author,
                 readingTime,
+                domain,
             });
         } else {
             metas.push({ slug: blogSlug });

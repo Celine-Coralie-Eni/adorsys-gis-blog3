@@ -4,7 +4,7 @@ slug: rust
 tags: [systems, performance, safety]
 lang: en
 authors: Celine-Coralie
-
+domain: Programming
 ---
 
 ![Rust](https://www.rust-lang.org/static/images/rust-logo-blk.svg)

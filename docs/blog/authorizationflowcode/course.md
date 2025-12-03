@@ -4,7 +4,7 @@ slug: authorization-code-flow
 authors: Tissong Ghislain & Nafisatou
 tags: [oauth2, security]
 lang: en
-
+domain: Identity & Access Management
 ---
 
 ![oauth](https://miro.medium.com/v2/resize:fit:1200/1*F5Rm3iDuJpIvmyMJ_Np8bg.jpeg)
