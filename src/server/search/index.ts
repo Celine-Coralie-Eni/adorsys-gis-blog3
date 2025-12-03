@@ -11,7 +11,9 @@ export interface SearchDocument {
     content: string;
     tags?: string[];
     author?: string;
+    description?: string;
     readingTime?: number;
+    domain?: string;
 }
 
 export interface SearchResultItem {
@@ -83,6 +85,8 @@ async function buildIndex(): Promise<SearchDocument[]> {
         let slug = '';
         let tags: string[] | undefined;
         let author: string | undefined;
+        let description: string | undefined;
+        let domain: string | undefined;
         let readingTime: number | undefined;
 
         if (isBlog) {
@@ -103,6 +107,12 @@ async function buildIndex(): Promise<SearchDocument[]> {
                     : typeof rawAuthors === 'string'
                         ? rawAuthors
                         : undefined;
+
+                const rawDescription = matterResult.data.description;
+                description = typeof rawDescription === 'string' ? rawDescription : undefined;
+
+                const rawDomain = matterResult.data.domain;
+                domain = typeof rawDomain === 'string' ? rawDomain : undefined;
 
                 const content = matterResult.content || '';
                 const plainText = content.replace(/<[^>]+>/g, ' ');
@@ -134,6 +144,8 @@ async function buildIndex(): Promise<SearchDocument[]> {
             content: contentPlain,
             tags,
             author,
+            description,
+            domain,
             readingTime,
         });
     }
@@ -157,20 +169,24 @@ function scoreDocument(query: string, doc: SearchDocument): number {
 
     let score = 0;
     const titleLower = doc.title.toLowerCase();
-    const contentLower = doc.content.toLowerCase();
+    const descriptionLower = (doc.description ?? '').toLowerCase();
     const tagsLower = (doc.tags ?? []).map((t) => t.toLowerCase());
     const authorLower = (doc.author ?? '').toLowerCase();
 
     for (const w of words) {
-        if (titleLower.includes(w)) score += 5;
-        const titleMatches = titleLower.split(w).length - 1;
-        score += titleMatches * 10; // strong boost for title frequency
+        // Title matching - highest priority
+        if (titleLower.includes(w)) {
+            const titleMatches = titleLower.split(w).length - 1;
+            score += titleMatches * 15; // strong boost for title matches
+        }
 
-        if (contentLower.includes(w)) score += 1;
-        const contentMatches = contentLower.split(w).length - 1;
-        score += contentMatches * 2;
+        // Description matching
+        if (descriptionLower && descriptionLower.includes(w)) {
+            const descMatches = descriptionLower.split(w).length - 1;
+            score += descMatches * 8; // moderate boost for description matches
+        }
 
-        // Boost for tag matches
+        // Tag matching - exact or partial
         for (const t of tagsLower) {
             if (t === w) {
                 score += 120; // exact tag match: very strong
@@ -179,7 +195,13 @@ function scoreDocument(query: string, doc: SearchDocument): number {
             }
         }
 
-        // Boost for author matches
+        // Domain matching - exact or partial
+        const domainLower = (doc.domain ?? '').toLowerCase();
+        if (domainLower.includes(w)) {
+            score += 20; // boost for domain match
+        }
+
+        // Author matching - exact or partial
         if (authorLower) {
             if (authorLower === w) {
                 score += 100; // exact author match: very strong
@@ -188,9 +210,6 @@ function scoreDocument(query: string, doc: SearchDocument): number {
             }
         }
     }
-
-    // Slight boost by type if desired
-    if (doc.type === 'blog') score += 1;
 
     return score;
 }

@@ -4,6 +4,7 @@ slug: chakra-ui
 authors: Micheal Ndoh
 tags: [frontend, react, ui]
 lang: en
+domain: Frontend & Design   
 
 ---
 

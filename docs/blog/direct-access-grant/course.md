@@ -6,6 +6,7 @@ authors: Nathan
 tags: [oauth2, authentication, security, keycloak]
 description: Understanding Direct Access Grant flow (Resource Owner Password Credentials) for OAuth 2.0 authentication.
 date: '2025-09-16'
+domain: Authentication & Authorization
 ---
 
 # Direct Access Grant (Resource Owner Password Credentials)

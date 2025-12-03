@@ -5,6 +5,7 @@ authors: stephane-segning
 lang: en
 tags:
   - security
+domain: DevOps & System Administration
 ---
 
 # Secure Software Development Lifecycle (SSDLC)

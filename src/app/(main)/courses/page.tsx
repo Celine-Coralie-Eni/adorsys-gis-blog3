@@ -39,16 +39,19 @@ async function getCourses() {
         // Extract author
         const rawAuthors = (course as any)?.authors as unknown;
         const author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
-            ? rawAuthors[0]
-            : typeof rawAuthors === 'string'
+          ? rawAuthors[0]
+          : typeof rawAuthors === 'string'
             ? rawAuthors
             : undefined;
+
+        // Extract domain
+        const domain = typeof (course as any)?.domain === 'string' ? (course as any).domain : undefined;
 
         // Calculate reading time
         const content = course?.content || '';
         const plainText = content.replace(/<[^>]+>/g, ' ');
         const words = plainText.trim().split(/\s+/).filter(Boolean).length;
-        const readingTime = Math.max(1, Math.ceil(words / 60));
+        const readingTime = Math.max(1, Math.ceil(words / 200));
         // Determine created date: prefer course front matter, then slides, then generated mapping, then file mtime
         let created: string | undefined = undefined;
         if (typeof (course as any)?.date === "string") {
@@ -84,6 +87,7 @@ async function getCourses() {
           date: created,
           author,
           readingTime,
+          domain,
         };
       } catch {
         return {

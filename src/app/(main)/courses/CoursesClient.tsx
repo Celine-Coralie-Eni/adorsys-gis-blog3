@@ -1,12 +1,14 @@
 "use client";
+import "@blog/i18n/boot";
 
+import { useMemo } from "react";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { Container } from "@blog/components/container";
 import { CourseCard } from "@blog/components/course";
 import { PaginationNuqs } from "@blog/components/pagination/pagination-nuqs";
 import { CoursesHeader } from "./CoursesHeader";
 import { CoursesSearch } from "./CoursesSearch";
-import { useMemo } from "react";
+import { api } from "@blog/trpc/react";
 
 interface Course {
   slug: string;
@@ -18,6 +20,7 @@ interface Course {
   date?: string;
   author?: string;
   readingTime?: number;
+  domain?: string;
 }
 
 interface CoursesClientProps {
@@ -25,19 +28,22 @@ interface CoursesClientProps {
 }
 
 export function CoursesClient({ courses }: CoursesClientProps) {
-  const [lang, setLang] = useQueryState("lang", parseAsString.withDefault("en"));
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [domain, setDomain] = useQueryState("domain", parseAsString.withDefault("all"));
+
+  // Fetch all domains
+  const { data: domains = [] } = api.search.domains.useQuery();
 
   const perPage = 8;
 
-  // Filter courses based on language
+  // Filter courses based on domain only
   const filtered = useMemo(() => {
     return courses.filter((c) => {
-      if (lang === "fr") return (c.lang ?? "").toLowerCase() === "fr";
-      // Default 'en': include english or missing lang
-      return (c.lang?.toLowerCase() ?? "en") === "en";
+      // Domain filter
+      if (domain !== "all" && c.domain !== domain) return false;
+      return true;
     });
-  }, [courses, lang]);
+  }, [courses, domain]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / perPage));
@@ -46,7 +52,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
   const pageItems = filtered.slice(start, start + perPage);
 
   // Generate current URL for returnTo parameter
-  const currentListUrl = `/courses${lang !== "en" ? `?lang=${lang}` : ""}${current > 1 ? `${lang !== "en" ? "&" : "?"}page=${current}` : ""}`;
+  const currentListUrl = `/courses${current > 1 ? `?page=${current}` : ""}`;
 
   return (
     <div className="bg-black">
@@ -55,6 +61,25 @@ export function CoursesClient({ courses }: CoursesClientProps) {
           <CoursesHeader total={total} />
         </div>
         <CoursesSearch>
+          <div className="w-full">
+            {/* Domain Selector */}
+            <div className="mb-6 sm:mb-8">
+              <select
+                value={domain}
+                onChange={(e) => {
+                  setDomain(e.target.value);
+                  setPage(1);
+                }}
+                className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <option value="" disabled className="bg-gray-900">Domains</option>
+                <option value="all" className="bg-gray-900">All Domains</option>
+                {domains.map((d) => (
+                  <option key={d} value={d} className="bg-gray-900">{d}</option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pageItems.map(
               ({ slug, title, description, lang, previews, tags, date, author, readingTime }) => (
