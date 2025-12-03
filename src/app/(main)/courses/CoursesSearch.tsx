@@ -81,17 +81,16 @@ export function CoursesSearch({ children }: PropsWithChildren) {
             <div className="text-xs sm:text-sm opacity-70">{t("search.noResults")}</div>
           )}
           <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.map(({ slug, title, description, lang, tags, previews, author, readingTime }) => (
+            {data?.map((item) => (
               <CourseCard
-                key={slug}
-                slug={slug}
-                title={title}
-                description={description}
-                lang={lang}
-                tags={tags}
-                slide1Html={previews?.firstHtml}
-                author={author}
-                readingTime={readingTime}
+                key={item.slug}
+                slug={item.slug}
+                title={item.title}
+                description={item.description}
+                lang={item.lang}
+                tags={item.tags}
+                author={item.author}
+                readingTime={item.readingTime}
               />
             ))}
           </div>
