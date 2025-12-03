@@ -1,7 +1,7 @@
-import {readFileSync} from 'fs-extra';
+import { readFileSync } from 'node:fs';
 import matter from 'gray-matter';
 import * as path from 'node:path';
-import {markdownToHtml} from './converter';
+import { markdownToHtml } from './converter';
 
 export async function loadDocMd(
     ...slug: string[]

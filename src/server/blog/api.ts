@@ -9,6 +9,16 @@ async function* dir_api(dir: string) {
     }
 }
 
+function calculateReadingTime(content: string): number {
+    // Strip HTML tags
+    const plainText = content.replace(/<[^>]+>/g, ' ');
+    // Count words
+    const words = plainText.trim().split(/\s+/).filter(Boolean).length;
+    // A more conservative reading speed: 60 words per minute
+    const minutes = Math.ceil(words / 60);
+    return Math.max(1, minutes); // At least 1 minute
+}
+
 export async function getAllBlogs() {
     const fullPath = path.join(process.cwd(), 'docs', 'blog');
     const dirs = dir_api(fullPath);
@@ -25,6 +35,8 @@ export type BlogMeta = {
     description?: string;
     lang?: string;
     tags?: string[];
+    author?: string;
+    readingTime?: number;
 };
 
 export async function getAllBlogMeta(): Promise<BlogMeta[]> {
@@ -42,12 +54,21 @@ export async function getAllBlogMeta(): Promise<BlogMeta[]> {
                 : typeof rawTags === 'string'
                     ? rawTags.split(',').map((t) => t.trim()).filter(Boolean)
                     : undefined;
+            const rawAuthors = data.authors as unknown;
+            const author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
+                ? rawAuthors[0]
+                : typeof rawAuthors === 'string'
+                ? rawAuthors
+                : undefined;
+            const readingTime = calculateReadingTime(parsed.content || '');
             metas.push({
                 slug: blogSlug,
                 title: typeof data.title === 'string' ? data.title : undefined,
                 description: typeof data.description === 'string' ? data.description : undefined,
                 lang: typeof data.lang === 'string' ? data.lang : undefined,
                 tags,
+                author,
+                readingTime,
             });
         } else {
             metas.push({ slug: blogSlug });

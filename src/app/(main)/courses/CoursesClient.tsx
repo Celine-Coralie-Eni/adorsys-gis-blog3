@@ -16,6 +16,8 @@ interface Course {
   previews: Record<string, any>;
   tags?: string[];
   date?: string;
+  author?: string;
+  readingTime?: number;
 }
 
 interface CoursesClientProps {
@@ -25,7 +27,7 @@ interface CoursesClientProps {
 export function CoursesClient({ courses }: CoursesClientProps) {
   const [lang, setLang] = useQueryState("lang", parseAsString.withDefault("en"));
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  
+
   const perPage = 8;
 
   // Filter courses based on language
@@ -55,7 +57,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
         <CoursesSearch>
           <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pageItems.map(
-              ({ slug, title, description, lang, previews, tags, date }) => (
+              ({ slug, title, description, lang, previews, tags, date, author, readingTime }) => (
                 <CourseCard
                   key={slug}
                   slug={slug}
@@ -65,6 +67,8 @@ export function CoursesClient({ courses }: CoursesClientProps) {
                   slide1Html={(previews as any)?.firstHtml}
                   tags={tags}
                   date={date}
+                  author={author}
+                  readingTime={readingTime}
                   returnTo={currentListUrl}
                 />
               )

@@ -14,7 +14,11 @@ export function CoursesSearch({ children }: PropsWithChildren) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { data, isFetching } = api.search.cards.useQuery(
-    { q: query, limit: 25, lang: i18n.language?.startsWith("fr") ? "fr" : "en" },
+    {
+      q: query,
+      limit: 25,
+      lang: i18n.language?.startsWith("fr") ? "fr" : "en",
+    },
     { enabled }
   );
 
@@ -77,7 +81,7 @@ export function CoursesSearch({ children }: PropsWithChildren) {
             <div className="text-xs sm:text-sm opacity-70">{t("search.noResults")}</div>
           )}
           <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.map(({ slug, title, description, lang, tags, previews }) => (
+            {data?.map(({ slug, title, description, lang, tags, previews, author, readingTime }) => (
               <CourseCard
                 key={slug}
                 slug={slug}
@@ -86,6 +90,8 @@ export function CoursesSearch({ children }: PropsWithChildren) {
                 lang={lang}
                 tags={tags}
                 slide1Html={previews?.firstHtml}
+                author={author}
+                readingTime={readingTime}
               />
             ))}
           </div>

@@ -3,6 +3,7 @@ title: Rust Programming Language
 slug: rust
 tags: [systems, performance, safety]
 lang: en
+authors: Celine-Coralie
 
 ---
 

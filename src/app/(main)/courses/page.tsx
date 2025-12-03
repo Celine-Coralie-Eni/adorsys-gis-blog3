@@ -36,6 +36,19 @@ async function getCourses() {
             .map((t) => t.trim())
             .filter(Boolean);
         }
+        // Extract author
+        const rawAuthors = (course as any)?.authors as unknown;
+        const author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
+            ? rawAuthors[0]
+            : typeof rawAuthors === 'string'
+            ? rawAuthors
+            : undefined;
+
+        // Calculate reading time
+        const content = course?.content || '';
+        const plainText = content.replace(/<[^>]+>/g, ' ');
+        const words = plainText.trim().split(/\s+/).filter(Boolean).length;
+        const readingTime = Math.max(1, Math.ceil(words / 60));
         // Determine created date: prefer course front matter, then slides, then generated mapping, then file mtime
         let created: string | undefined = undefined;
         if (typeof (course as any)?.date === "string") {
@@ -58,7 +71,7 @@ async function getCourses() {
             );
             const stat = await fs.stat(coursePath);
             created = stat.mtime.toISOString();
-          } catch {}
+          } catch { }
         }
 
         return {
@@ -69,6 +82,8 @@ async function getCourses() {
           previews,
           tags,
           date: created,
+          author,
+          readingTime,
         };
       } catch {
         return {

@@ -1,6 +1,7 @@
 ---
 title: Terraform – Infrastructure as Code
 lang: en
+authors: Celine-Coralie
 description: Provision reproducible cloud infrastructure using Terraform, modules, and CI workflows.
 tags:
   - devops
