@@ -43,9 +43,8 @@ export const searchRouter = createTRPCRouter({
                     description: r.snippet,
                     author: r.author,
                     readingTime: r.readingTime,
-                    // The following are not available from search results, but the UI can handle their absence
                     lang: undefined,
-                    tags: undefined,
+                    tags: r.tags,
                     previews: undefined,
                 };
             });

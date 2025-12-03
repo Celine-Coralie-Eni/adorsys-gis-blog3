@@ -23,6 +23,7 @@ export interface SearchResultItem {
     score: number;
     author?: string;
     readingTime?: number;
+    tags?: string[];
 }
 
 let cachedIndex: SearchDocument[] | null = null;
@@ -100,8 +101,8 @@ async function buildIndex(): Promise<SearchDocument[]> {
                 author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
                     ? rawAuthors[0]
                     : typeof rawAuthors === 'string'
-                    ? rawAuthors
-                    : undefined;
+                        ? rawAuthors
+                        : undefined;
 
                 const content = matterResult.content || '';
                 const plainText = content.replace(/<[^>]+>/g, ' ');
@@ -211,10 +212,13 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
     const index = await ensureIndex();
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
 
-    // 1a) If the query matches any author exactly, return only blog posts by that author
-    const allAuthors = [...new Set(index.map(doc => doc.author).filter((a): a is string => !!a))].map(a => a.toLowerCase());
-    const queryLower = query.toLowerCase();
-    if (allAuthors.includes(queryLower)) {
+    // 1a) If the query matches any author (exact or partial), return only blog posts by matching authors
+    const allAuthors = [...new Set(index.map(doc => doc.author).filter((a): a is string => !!a))];
+    const queryLower = query.toLowerCase().trim();
+
+    // Check for exact match first (entire query matches author name exactly)
+    const exactAuthorMatch = allAuthors.find(a => a.toLowerCase() === queryLower);
+    if (exactAuthorMatch) {
         const authorMatchedDocs = index.filter(doc => doc.author?.toLowerCase() === queryLower);
         return authorMatchedDocs.map(doc => ({
             id: doc.id,
@@ -222,39 +226,64 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
             url: doc.url,
             type: doc.type,
             snippet: makeSnippet(doc.content, query),
-            score: 1000, // Max score to ensure they are on top
+            score: 1000,
             author: doc.author,
             readingTime: doc.readingTime,
+            tags: doc.tags,
+        }));
+    }
+
+    // Check if ALL words in the query are contained in any single author's name
+    // This ensures "micheal security" won't match "Micheal Ndoh" (security is not in the name)
+    // But "micheal ndoh" will match "Micheal Ndoh"
+    const allWordsMatchAuthor = allAuthors.filter(authorName => {
+        const authorLower = authorName.toLowerCase();
+        return words.every(word => authorLower.includes(word));
+    });
+
+    if (allWordsMatchAuthor.length > 0) {
+        const authorMatchedDocs = index.filter(doc =>
+            doc.author && allWordsMatchAuthor.some(a => a.toLowerCase() === doc.author?.toLowerCase())
+        );
+        return authorMatchedDocs.map(doc => ({
+            id: doc.id,
+            title: doc.title,
+            url: doc.url,
+            type: doc.type,
+            snippet: makeSnippet(doc.content, query),
+            score: 1000,
+            author: doc.author,
+            readingTime: doc.readingTime,
+            tags: doc.tags,
         }));
     }
 
     // 1b) If the query matches any tag exactly, return only blog posts with that tag
-    else {
-        const tagMatchedDocs = index.filter((doc) =>
-            doc.type === 'blog' && (doc.tags ?? []).some((t) => words.includes(t.toLowerCase()))
-        );
+    const tagMatchedDocs = index.filter((doc) =>
+        doc.type === 'blog' && (doc.tags ?? []).some((t) => words.includes(t.toLowerCase()))
+    );
 
-        if (tagMatchedDocs.length > 0) {
-            const results = tagMatchedDocs
-                .map((doc) => ({
-                    id: doc.id,
-                    title: doc.title,
-                    url: doc.url,
-                    type: doc.type,
-                    snippet: makeSnippet(doc.content, query),
-                    score: 1000, // strong, deterministic ordering later by dedupe/map
-                    author: doc.author,
-                    readingTime: doc.readingTime,
-                }))
-                // Deduplicate by URL in case both course/slides exist with same URL; prefer first
-                .reduce((acc, item) => {
-                    const existing = acc.get(item.url);
-                    if (!existing || item.score > existing.score) acc.set(item.url, item);
-                    return acc;
-                }, new Map<string, SearchResultItem>())
-                ;
-            return Array.from(results.values()).slice(0, limit);
-        }
+    if (tagMatchedDocs.length > 0) {
+        const results = tagMatchedDocs
+            .map((doc) => ({
+                id: doc.id,
+                title: doc.title,
+                url: doc.url,
+                type: doc.type,
+                snippet: makeSnippet(doc.content, query),
+                score: 1000,
+                author: doc.author,
+                readingTime: doc.readingTime,
+                tags: doc.tags,
+            }))
+            // Deduplicate by URL in case both course/slides exist with same URL; prefer first
+            .reduce((acc, item) => {
+                const existing = acc.get(item.url);
+                if (!existing || item.score > existing.score) acc.set(item.url, item);
+                return acc;
+            }, new Map<string, SearchResultItem>())
+            ;
+        return Array.from(results.values()).slice(0, limit);
     }
 
     // 2) Otherwise do full-text scoring but only for blog posts, and dedupe by URL
@@ -275,6 +304,7 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
             score,
             author: doc.author,
             readingTime: doc.readingTime,
+            tags: doc.tags,
         };
         const prev = deduped.get(item.url);
         if (!prev || item.score > prev.score) deduped.set(item.url, item);
