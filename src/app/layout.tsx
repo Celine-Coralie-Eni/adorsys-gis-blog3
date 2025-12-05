@@ -9,8 +9,20 @@ import { I18nInit } from "@blog/i18n/ClientInit";
 
 export const metadata: Metadata = {
   title: "GIS Blog",
-  description: "GIS Blog by Adorsys",
+  description: "GIS Blog by Adorsys - Insightful articles and updates from the GIS team",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  openGraph: {
+    title: "GIS Blog",
+    description: "Insightful articles and updates from the GIS team — best practices, real-world geospatial use cases, and deep dives into tools and data workflows.",
+    type: "website",
+    locale: "en_US",
+    siteName: "GIS Blog",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GIS Blog",
+    description: "Insightful articles and updates from the GIS team",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<PropsWithChildren>) {
