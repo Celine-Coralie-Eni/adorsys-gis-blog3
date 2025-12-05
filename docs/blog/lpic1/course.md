@@ -5,7 +5,7 @@ authors: Celine-Coralie
 slug: lpic1-cert
 tags: [linux, certification, administrateur système]
 description: La certification LPIC-1 est une accréditation professionnelle pour les administrateurs système Linux, validant les compétences de base en gestion de systèmes Linux.
-domain: DevOps et Administration Système
+domain: DevOps
 ---
 
 # Introduction à la certification LPIC-1

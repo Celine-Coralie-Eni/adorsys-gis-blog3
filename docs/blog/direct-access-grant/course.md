@@ -3,10 +3,10 @@ title: Direct Access Grant (Resource Owner Password Credentials)
 slug: direct-access-grant
 lang: en
 authors: Nathan
-tags: [oauth2, authentication, security, keycloak]
+tags: [oauth2, authentication, keycloak]
 description: Understanding Direct Access Grant flow (Resource Owner Password Credentials) for OAuth 2.0 authentication.
 date: '2025-09-16'
-domain: Authentication & Authorization
+domain: Security
 ---
 
 # Direct Access Grant (Resource Owner Password Credentials)

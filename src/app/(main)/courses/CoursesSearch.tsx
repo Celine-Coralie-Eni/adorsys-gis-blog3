@@ -7,7 +7,7 @@ import { CourseCard } from "@blog/components/course";
 import { Search as SearchIcon, X as ClearIcon } from "react-feather";
 import { useTranslation } from "react-i18next";
 
-export function CoursesSearch({ children }: PropsWithChildren) {
+export function CoursesSearch({ children, filterSlot }: PropsWithChildren<{ filterSlot?: React.ReactNode }>) {
   const { t, i18n } = useTranslation();
   const [query, setQuery] = useState("");
   const enabled = query.trim().length > 0;
@@ -24,9 +24,10 @@ export function CoursesSearch({ children }: PropsWithChildren) {
 
   return (
     <div className="w-full">
-      <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2 max-w-3xl px-4 sm:px-0">
+      <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2 max-w-3xl px-4 sm:px-0 flex items-center gap-2">
+        {filterSlot}
         <form
-          className="flex items-center gap-2"
+          className="flex-1"
           onSubmit={(e) => {
             e.preventDefault();
           }}

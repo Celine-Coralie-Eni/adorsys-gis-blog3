@@ -6,7 +6,7 @@ authors: Micheal Ndoh
 tags: [frontend, programming, language]
 description: Master modern JavaScript fundamentals including syntax, the event loop, async patterns, and modules.
 date: '2025-08-16'
-domain: Web Development
+domain: Development
 ---
 
 # Introduction to JavaScript

@@ -7,7 +7,7 @@ tags:
   - i18n
   - localization
   - tooling
-domain: Localization (i18n)
+domain: Development
 ---
 
 ![Tolgee](https://docs.tolgee.io/assets/images/extracted_files-7fa2946e0f64400365e816d27d5321a3.png)

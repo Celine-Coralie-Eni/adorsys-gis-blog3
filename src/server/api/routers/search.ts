@@ -39,6 +39,15 @@ export const searchRouter = createTRPCRouter({
             }
             return Array.from(all).sort((a, b) => a.localeCompare(b));
         }),
+    authors: publicProcedure
+        .query(async () => {
+            const metas = await getAllBlogMeta();
+            const all = new Set<string>();
+            for (const m of metas) {
+                if (m.author) all.add(m.author);
+            }
+            return Array.from(all).sort((a, b) => a.localeCompare(b));
+        }),
     cards: publicProcedure
         .input(z.object({ q: z.string().min(1), limit: z.number().min(1).max(50).optional(), lang: z.enum(["en", "fr"]).optional() }))
         .query(async ({ input }) => {
