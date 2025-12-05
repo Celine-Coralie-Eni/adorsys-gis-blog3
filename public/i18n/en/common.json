@@ -22,9 +22,15 @@
     "placeholder": "Search courses, topics, or keywords...",
     "showTags": "Show tags",
     "filterLabel": "Courses",
+    "filterBy": "Filter by",
+    "filters": "Filters",
+    "done": "Done",
+    "clearAll": "Clear all",
     "noTags": "No tags",
     "searching": "Searching…",
-    "noResults": "No results"
+    "noResults": "No results",
+    "noResultsFound": "No results found",
+    "tryAdjustingFilters": "Try adjusting your filters"
   },
   "courseCard": {
     "slidesSoon": "Slides available. Course notes coming soon.",

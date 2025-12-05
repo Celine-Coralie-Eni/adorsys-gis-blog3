@@ -1,8 +1,10 @@
 "use client";
+import "@blog/i18n/boot";
 
 import { useState, useEffect } from "react";
 import { X, Filter } from "react-feather";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface FilterModalProps {
     domains: string[];
@@ -25,6 +27,7 @@ export function FilterModal({
     selectedTags,
     onApply,
 }: FilterModalProps) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<Tab>("domain");
 
@@ -79,7 +82,7 @@ export function FilterModal({
                 className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 text-white text-sm hover:bg-white/20 transition-colors flex flex-row items-center gap-2 whitespace-nowrap"
             >
                 <Filter size={16} />
-                Filter by
+                {t("search.filterBy")}
             </button>
 
             <AnimatePresence>
@@ -103,7 +106,7 @@ export function FilterModal({
                         >
                             <div className="p-6 pb-0">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-xl font-semibold text-white">Filters</h2>
+                                    <h2 className="text-xl font-semibold text-white">{t("search.filters")}</h2>
                                     <button
                                         onClick={() => setIsOpen(false)}
                                         className="p-1 text-gray-400 hover:text-white transition-colors"
@@ -185,13 +188,13 @@ export function FilterModal({
                                         onClick={clearAll}
                                         className="text-sm text-gray-400 hover:text-white transition-colors"
                                     >
-                                        Clear all ({totalFilters})
+                                        {t("search.clearAll")} ({totalFilters})
                                     </button>
                                     <button
                                         onClick={handleApply}
                                         className="px-6 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                                     >
-                                        Done
+                                        {t("search.done")}
                                     </button>
                                 </div>
                             </div>
