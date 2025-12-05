@@ -10,6 +10,7 @@ import { CoursesHeader } from "./CoursesHeader";
 import { CoursesSearch } from "./CoursesSearch";
 import { FilterModal } from "./FilterModal";
 import { api } from "@blog/trpc/react";
+import { useTranslation } from "react-i18next";
 
 interface Course {
   slug: string;
@@ -29,6 +30,7 @@ interface CoursesClientProps {
 }
 
 export function CoursesClient({ courses }: CoursesClientProps) {
+  const { t } = useTranslation();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const [selectedDomains, setSelectedDomains] = useQueryState(
@@ -43,6 +45,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
     "tags",
     parseAsArrayOf(parseAsString).withDefault([])
   );
+  const [lang] = useQueryState("lang", parseAsString.withDefault("en"));
 
   // Fetch filter data
   const { data: allDomains = [] } = api.search.domains.useQuery();
@@ -51,9 +54,14 @@ export function CoursesClient({ courses }: CoursesClientProps) {
 
   const perPage = 8;
 
-  // Filter courses based on domain, author, and tags
+  // Filter courses based on domain, author, tags, and language
   const filtered = useMemo(() => {
     return courses.filter((c) => {
+      // Language filter - only show courses matching the selected language
+      if (c.lang && c.lang !== lang) {
+        return false;
+      }
+
       // Domain filter
       if (selectedDomains.length > 0 && c.domain && !selectedDomains.includes(c.domain)) {
         return false;
@@ -73,7 +81,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
 
       return true;
     });
-  }, [courses, selectedDomains, selectedAuthors, selectedTags]);
+  }, [courses, selectedDomains, selectedAuthors, selectedTags, lang]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / perPage));
@@ -132,8 +140,8 @@ export function CoursesClient({ courses }: CoursesClientProps) {
               )
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
-                <p className="text-xl text-gray-400 font-medium">No results found</p>
-                <p className="text-gray-500 mt-2">Try adjusting your filters</p>
+                <p className="text-xl text-gray-400 font-medium">{t("search.noResultsFound")}</p>
+                <p className="text-gray-500 mt-2">{t("search.tryAdjustingFilters")}</p>
               </div>
             )}
           </div>
