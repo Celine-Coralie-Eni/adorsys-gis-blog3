@@ -5,7 +5,7 @@ slug: lpic1-cert
 authors: Micheal Ndoh
 tags: [linux, certification, sysadmin]
 description: LPIC-1 is a professional certification for Linux system administrators, validating foundational skills in Linux system management.
-domain: DevOps & System Administration
+domain: DevOps
 ---
 
 # Introduction to LPIC-1 Certification
