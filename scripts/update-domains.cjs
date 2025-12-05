@@ -19,6 +19,9 @@ const mappings = {
 
 const docsDir = '/home/coralie-celine/Projects/next.js-projects/adorsys-gis-blog3/docs/blog';
 
+/**
+ * @param {string} dir
+ */
 function updateDomains(dir) {
     const files = fs.readdirSync(dir);
 

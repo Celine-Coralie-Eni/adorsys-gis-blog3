@@ -4,6 +4,9 @@ const path = require('path');
 const redundantTags = ['development', 'devops', 'design', 'security'];
 const docsDir = '/home/coralie-celine/Projects/next.js-projects/adorsys-gis-blog3/docs/blog';
 
+/**
+ * @param {string} dir
+ */
 function updateTags(dir) {
     const files = fs.readdirSync(dir);
 
@@ -21,7 +24,7 @@ function updateTags(dir) {
             const tagsRegex = /tags:\s*(\[.*?\]|.*)/;
             const match = content.match(tagsRegex);
 
-            if (match) {
+            if (match && match[1]) {
                 let originalTagsStr = match[1].trim();
                 let tags = [];
 
