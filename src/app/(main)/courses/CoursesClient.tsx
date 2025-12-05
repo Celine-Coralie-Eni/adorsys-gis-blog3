@@ -2,12 +2,13 @@
 import "@blog/i18n/boot";
 
 import { useMemo } from "react";
-import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
+import { useQueryState, parseAsString, parseAsInteger, parseAsArrayOf } from "nuqs";
 import { Container } from "@blog/components/container";
 import { CourseCard } from "@blog/components/course";
 import { PaginationNuqs } from "@blog/components/pagination/pagination-nuqs";
 import { CoursesHeader } from "./CoursesHeader";
 import { CoursesSearch } from "./CoursesSearch";
+import { FilterModal } from "./FilterModal";
 import { api } from "@blog/trpc/react";
 
 interface Course {
@@ -29,21 +30,50 @@ interface CoursesClientProps {
 
 export function CoursesClient({ courses }: CoursesClientProps) {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [domain, setDomain] = useQueryState("domain", parseAsString.withDefault("all"));
 
-  // Fetch all domains
-  const { data: domains = [] } = api.search.domains.useQuery();
+  const [selectedDomains, setSelectedDomains] = useQueryState(
+    "domains",
+    parseAsArrayOf(parseAsString).withDefault([])
+  );
+  const [selectedAuthors, setSelectedAuthors] = useQueryState(
+    "authors",
+    parseAsArrayOf(parseAsString).withDefault([])
+  );
+  const [selectedTags, setSelectedTags] = useQueryState(
+    "tags",
+    parseAsArrayOf(parseAsString).withDefault([])
+  );
+
+  // Fetch filter data
+  const { data: allDomains = [] } = api.search.domains.useQuery();
+  const { data: allAuthors = [] } = api.search.authors.useQuery();
+  const { data: allTags = [] } = api.search.tags.useQuery();
 
   const perPage = 8;
 
-  // Filter courses based on domain only
+  // Filter courses based on domain, author, and tags
   const filtered = useMemo(() => {
     return courses.filter((c) => {
       // Domain filter
-      if (domain !== "all" && c.domain !== domain) return false;
+      if (selectedDomains.length > 0 && c.domain && !selectedDomains.includes(c.domain)) {
+        return false;
+      }
+
+      // Author filter
+      if (selectedAuthors.length > 0 && c.author && !selectedAuthors.includes(c.author)) {
+        return false;
+      }
+
+      // Tag filter
+      if (selectedTags.length > 0) {
+        if (!c.tags || !c.tags.some(tag => selectedTags.includes(tag))) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [courses, domain]);
+  }, [courses, selectedDomains, selectedAuthors, selectedTags]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / perPage));
@@ -60,43 +90,51 @@ export function CoursesClient({ courses }: CoursesClientProps) {
         <div className="mb-6 space-y-4">
           <CoursesHeader total={total} />
         </div>
-        <CoursesSearch>
+        <CoursesSearch
+          filterSlot={
+            <FilterModal
+              domains={allDomains}
+              authors={allAuthors}
+              tags={allTags}
+              selectedDomains={selectedDomains}
+              selectedAuthors={selectedAuthors}
+              selectedTags={selectedTags}
+              onApply={(domains, authors, tags) => {
+                setSelectedDomains(domains.length > 0 ? domains : null);
+                setSelectedAuthors(authors.length > 0 ? authors : null);
+                setSelectedTags(tags.length > 0 ? tags : null);
+                setPage(1);
+              }}
+            />
+          }
+        >
           <div className="w-full">
-            {/* Domain Selector */}
-            <div className="mb-6 sm:mb-8">
-              <select
-                value={domain}
-                onChange={(e) => {
-                  setDomain(e.target.value);
-                  setPage(1);
-                }}
-                className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-              >
-                <option value="" disabled className="bg-gray-900">Domains</option>
-                <option value="all" className="bg-gray-900">All Domains</option>
-                {domains.map((d) => (
-                  <option key={d} value={d} className="bg-gray-900">{d}</option>
-                ))}
-              </select>
-            </div>
+            {/* Filter was here, now moved to search bar */}
           </div>
           <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {pageItems.map(
-              ({ slug, title, description, lang, previews, tags, date, author, readingTime }) => (
-                <CourseCard
-                  key={slug}
-                  slug={slug}
-                  title={title}
-                  description={description}
-                  lang={lang}
-                  slide1Html={(previews as any)?.firstHtml}
-                  tags={tags}
-                  date={date}
-                  author={author}
-                  readingTime={readingTime}
-                  returnTo={currentListUrl}
-                />
+            {pageItems.length > 0 ? (
+              pageItems.map(
+                ({ slug, title, description, lang, previews, tags, date, author, readingTime }) => (
+                  <CourseCard
+                    key={slug}
+                    slug={slug}
+                    title={title}
+                    description={description}
+                    lang={lang}
+                    slide1Html={(previews as any)?.firstHtml}
+                    tags={tags}
+                    date={date}
+                    author={author}
+                    readingTime={readingTime}
+                    returnTo={currentListUrl}
+                  />
+                )
               )
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+                <p className="text-xl text-gray-400 font-medium">No results found</p>
+                <p className="text-gray-500 mt-2">Try adjusting your filters</p>
+              </div>
             )}
           </div>
           {pageCount > 1 && (
