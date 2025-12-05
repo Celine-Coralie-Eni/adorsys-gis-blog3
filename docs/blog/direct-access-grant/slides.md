@@ -3,7 +3,7 @@ title: Direct Access Grant Demo
 slug: direct-access-grant-slides
 lang: en
 authors: Nathan
-tags: [oauth2, authentication, security, keycloak, presentation]
+tags: [oauth2, authentication, keycloak, presentation]
 description: Slide presentation demonstrating Direct Access Grant (Resource Owner Password Credentials) flow implementation.
 date: '2025-09-16'
 ---
