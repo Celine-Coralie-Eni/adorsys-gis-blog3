@@ -63,8 +63,8 @@ export function FilterModal({
     };
 
     const handleApply = () => {
-        onApply(tempDomains, tempAuthors, tempTags);
         setIsOpen(false);
+        onApply(tempDomains, tempAuthors, tempTags);
     };
 
     const clearAll = () => {
