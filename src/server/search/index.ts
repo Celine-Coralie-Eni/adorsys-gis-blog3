@@ -14,6 +14,7 @@ export interface SearchDocument {
     description?: string;
     readingTime?: number;
     domain?: string;
+    lang?: string;
 }
 
 export interface SearchResultItem {
@@ -26,6 +27,7 @@ export interface SearchResultItem {
     author?: string;
     readingTime?: number;
     tags?: string[];
+    lang?: string;
 }
 
 let cachedIndex: SearchDocument[] | null = null;
@@ -88,6 +90,7 @@ async function buildIndex(): Promise<SearchDocument[]> {
         let description: string | undefined;
         let domain: string | undefined;
         let readingTime: number | undefined;
+        let lang: string | undefined;
 
         if (isBlog) {
             type = 'blog';
@@ -113,6 +116,9 @@ async function buildIndex(): Promise<SearchDocument[]> {
 
                 const rawDomain = matterResult.data.domain;
                 domain = typeof rawDomain === 'string' ? rawDomain : undefined;
+
+                const rawLang = matterResult.data.lang;
+                lang = typeof rawLang === 'string' ? rawLang : undefined;
 
                 const content = matterResult.content || '';
                 const plainText = content.replace(/<[^>]+>/g, ' ');
@@ -147,6 +153,7 @@ async function buildIndex(): Promise<SearchDocument[]> {
             description,
             domain,
             readingTime,
+            lang,
         });
     }
 
@@ -249,6 +256,7 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
             author: doc.author,
             readingTime: doc.readingTime,
             tags: doc.tags,
+            lang: doc.lang,
         }));
     }
 
@@ -274,6 +282,7 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
             author: doc.author,
             readingTime: doc.readingTime,
             tags: doc.tags,
+            lang: doc.lang,
         }));
     }
 
@@ -294,6 +303,7 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
                 author: doc.author,
                 readingTime: doc.readingTime,
                 tags: doc.tags,
+                lang: doc.lang,
             }))
             // Deduplicate by URL in case both course/slides exist with same URL; prefer first
             .reduce((acc, item) => {
@@ -324,6 +334,7 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
             author: doc.author,
             readingTime: doc.readingTime,
             tags: doc.tags,
+            lang: doc.lang,
         };
         const prev = deduped.get(item.url);
         if (!prev || item.score > prev.score) deduped.set(item.url, item);

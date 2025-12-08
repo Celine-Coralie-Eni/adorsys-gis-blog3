@@ -49,11 +49,21 @@ export const searchRouter = createTRPCRouter({
             return Array.from(all).sort((a, b) => a.localeCompare(b));
         }),
     cards: publicProcedure
-        .input(z.object({ q: z.string().min(1), limit: z.number().min(1).max(50).optional(), lang: z.enum(["en", "fr"]).optional() }))
+        .input(
+            z.object({
+                q: z.string().min(1),
+                limit: z.number().min(1).max(50).default(10),
+                cursor: z.number().min(0).default(0),
+                lang: z.enum(["en", "fr"]).optional(),
+            }),
+        )
         .query(async ({ input }) => {
-            const results = await searchContent(input.q, input.limit ?? 50);
+            const { q, limit, cursor, lang } = input;
+            const results = await searchContent(q, 1000); // Fetch a large number to simulate all results
 
-            const items = results.map((r) => {
+            const filteredResults = results.filter(r => !lang || r.lang === lang);
+
+            const items = filteredResults.slice(cursor, cursor + limit).map((r) => {
                 const slug = r.url.replace(/^\/?b\//, '');
                 return {
                     slug,
@@ -61,13 +71,17 @@ export const searchRouter = createTRPCRouter({
                     description: r.snippet,
                     author: r.author,
                     readingTime: r.readingTime,
-                    lang: undefined,
+                    lang: r.lang,
                     tags: r.tags,
                     previews: undefined,
                 };
             });
 
-            return items;
+            const nextCursor = cursor + items.length < filteredResults.length ? cursor + limit : null;
+
+            return {
+                items,
+                nextCursor,
+            };
         }),
 });
-
