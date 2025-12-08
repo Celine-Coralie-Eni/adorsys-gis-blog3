@@ -1,11 +1,12 @@
 "use client";
 import "@blog/i18n/boot";
 
-import { useRef, useState, type PropsWithChildren } from "react";
+import { useRef, useState, type PropsWithChildren, useEffect } from "react";
 import { api } from "@blog/trpc/react";
 import { CourseCard } from "@blog/components/course";
 import { Search as SearchIcon, X as ClearIcon } from "react-feather";
 import { useTranslation } from "react-i18next";
+import { useIntersection } from "@mantine/hooks";
 
 export function CoursesSearch({ children, filterSlot }: PropsWithChildren<{ filterSlot?: React.ReactNode }>) {
   const { t, i18n } = useTranslation();
@@ -13,14 +14,32 @@ export function CoursesSearch({ children, filterSlot }: PropsWithChildren<{ filt
   const enabled = query.trim().length > 0;
   const formRef = useRef<HTMLFormElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { data, isFetching } = api.search.cards.useQuery(
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } = api.search.cards.useInfiniteQuery(
     {
       q: query,
-      limit: 25,
+      limit: 10,
       lang: i18n.language?.startsWith("fr") ? "fr" : "en",
     },
-    { enabled }
+    {
+      enabled,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
   );
+
+  const lastPostRef = useRef<HTMLElement>(null);
+  const { ref, entry } = useIntersection({
+    root: lastPostRef.current,
+    threshold: 1,
+  });
+
+  useEffect(() => {
+    if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [entry, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const searchResults = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
     <div className="w-full">
@@ -75,26 +94,28 @@ export function CoursesSearch({ children, filterSlot }: PropsWithChildren<{ filt
 
       {enabled ? (
         <div className="mt-12 sm:mt-16 md:mt-24 xl:mt-28">
-          {isFetching && (
+          {isFetching && !isFetchingNextPage && (
             <div className="text-xs sm:text-sm opacity-70">{t("search.searching")}</div>
           )}
-          {!isFetching && data && data.length === 0 && (
+          {!isFetching && searchResults.length === 0 && (
             <div className="text-xs sm:text-sm opacity-70">{t("search.noResults")}</div>
           )}
           <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.map((item) => (
+            {searchResults.map((item, i) => (
               <CourseCard
                 key={item.slug}
                 slug={item.slug}
-                title={item.title}
+                title={item.title ?? item.slug}
                 description={item.description}
                 lang={item.lang}
                 tags={item.tags}
                 author={item.author}
                 readingTime={item.readingTime}
+                ref={i === searchResults.length - 1 ? ref : null}
               />
             ))}
           </div>
+          {isFetchingNextPage && <p className="mt-4 text-center text-sm opacity-70">Loading more...</p>}
         </div>
       ) : (
         <div className="mt-12 sm:mt-16 md:mt-24 xl:mt-28">{children}</div>
