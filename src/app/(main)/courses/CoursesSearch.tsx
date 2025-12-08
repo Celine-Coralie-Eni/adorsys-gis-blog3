@@ -101,19 +101,22 @@ export function CoursesSearch({ children, filterSlot }: PropsWithChildren<{ filt
             <div className="text-xs sm:text-sm opacity-70">{t("search.noResults")}</div>
           )}
           <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {searchResults.map((item, i) => (
-              <CourseCard
-                key={item.slug}
-                slug={item.slug}
-                title={item.title ?? item.slug}
-                description={item.description}
-                lang={item.lang}
-                tags={item.tags}
-                author={item.author}
-                readingTime={item.readingTime}
-                ref={i === searchResults.length - 1 ? ref : null}
-              />
-            ))}
+            {searchResults.map((item, i) => {
+              const isLast = i === searchResults.length - 1;
+              const card = (
+                <CourseCard
+                  key={item.slug}
+                  slug={item.slug}
+                  title={item.title ?? item.slug}
+                  description={item.description}
+                  lang={item.lang}
+                  tags={item.tags}
+                  author={item.author}
+                  readingTime={item.readingTime}
+                />
+              );
+              return isLast ? <div key={item.slug} ref={ref}>{card}</div> : card;
+            })}
           </div>
           {isFetchingNextPage && <p className="mt-4 text-center text-sm opacity-70">Loading more...</p>}
         </div>
