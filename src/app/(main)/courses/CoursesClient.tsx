@@ -113,6 +113,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
                 setSelectedTags(tags.length > 0 ? tags : null);
                 setPage(1);
               }}
+              filteredBlogsCount={total}
             />
           }
         >
