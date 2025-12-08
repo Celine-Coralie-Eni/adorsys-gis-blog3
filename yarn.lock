@@ -713,6 +713,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantine/hooks@npm:^8.3.9":
+  version: 8.3.9
+  resolution: "@mantine/hooks@npm:8.3.9"
+  peerDependencies:
+    react: ^18.x || ^19.x
+  checksum: 10c0/c414ea2b8b725a40a3115cbd1346d43f68b350a1b6472295a72e346c19bc06b524b13915dbeda73a0f29c391868413ff77bc2afeb8b28a1c950945bc725ad50c
+  languageName: node
+  linkType: hard
+
 "@mermaid-js/parser@npm:^0.6.2":
   version: 0.6.2
   resolution: "@mermaid-js/parser@npm:0.6.2"
@@ -2179,6 +2188,7 @@ __metadata:
     "@commitlint/cli": "npm:^19.5.0"
     "@commitlint/config-conventional": "npm:^19.8.0"
     "@fontsource/roboto": "npm:^5.1.1"
+    "@mantine/hooks": "npm:^8.3.9"
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/auto-instrumentations-web": "npm:^0.45.0"
     "@opentelemetry/context-zone": "npm:^1.30.1"
