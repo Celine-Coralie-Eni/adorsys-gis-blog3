@@ -56,6 +56,15 @@ export function CoursesClient({ courses }: CoursesClientProps) {
   // Check if any filters are active
   const hasActiveFilters = selectedDomains.length > 0 || selectedAuthors.length > 0 || selectedTags.length > 0;
 
+  // Memoize filter inputs to prevent infinite re-renders
+  const filterInput = useMemo(() => ({
+    domains: selectedDomains.length > 0 ? selectedDomains : undefined,
+    authors: selectedAuthors.length > 0 ? selectedAuthors : undefined,
+    tags: selectedTags.length > 0 ? selectedTags : undefined,
+    lang: i18n.language?.startsWith("fr") ? "fr" : "en" as "en" | "fr",
+    limit: 10,
+  }), [selectedDomains, selectedAuthors, selectedTags, i18n.language]);
+
   // Use infinite scroll when filters are active
   const {
     data: filteredData,
@@ -64,13 +73,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
     isFetchingNextPage,
     isFetching: isFilterFetching
   } = api.post.filtered.useInfiniteQuery(
-    {
-      domains: selectedDomains.length > 0 ? selectedDomains : undefined,
-      authors: selectedAuthors.length > 0 ? selectedAuthors : undefined,
-      tags: selectedTags.length > 0 ? selectedTags : undefined,
-      lang: i18n.language?.startsWith("fr") ? "fr" : "en",
-      limit: 10,
-    },
+    filterInput,
     {
       enabled: hasActiveFilters,
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -88,7 +91,7 @@ export function CoursesClient({ courses }: CoursesClientProps) {
     if (hasActiveFilters && entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [hasActiveFilters, entry, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasActiveFilters, entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const perPage = 8;
 
