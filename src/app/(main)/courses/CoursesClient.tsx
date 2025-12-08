@@ -63,7 +63,13 @@ export function CoursesClient({ courses }: CoursesClientProps) {
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     lang: i18n.language?.startsWith("fr") ? "fr" : "en" as "en" | "fr",
     limit: 10,
-  }), [selectedDomains, selectedAuthors, selectedTags, i18n.language]);
+  }), [
+    // Use JSON.stringify to ensure stability by value, not reference
+    JSON.stringify(selectedDomains),
+    JSON.stringify(selectedAuthors),
+    JSON.stringify(selectedTags),
+    i18n.language
+  ]);
 
   // Use infinite scroll when filters are active
   const {
