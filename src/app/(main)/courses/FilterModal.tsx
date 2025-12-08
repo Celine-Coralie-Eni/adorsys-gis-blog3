@@ -14,6 +14,7 @@ interface FilterModalProps {
     selectedAuthors: string[];
     selectedTags: string[];
     onApply: (domains: string[], authors: string[], tags: string[]) => void;
+    filteredBlogsCount: number;
 }
 
 type Tab = "domain" | "author" | "tag";
@@ -26,6 +27,7 @@ export function FilterModal({
     selectedAuthors,
     selectedTags,
     onApply,
+    filteredBlogsCount,
 }: FilterModalProps) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
@@ -69,21 +71,50 @@ export function FilterModal({
         setTempDomains([]);
         setTempAuthors([]);
         setTempTags([]);
+        // Apply the cleared filters and close modal immediately
+        onApply([], [], []);
+        setIsOpen(false);
+    };
+
+    const handleQuickClear = () => {
+        // Clear all filters and close modal
+        onApply([], [], []);
     };
 
     const totalFilters = tempDomains.length + tempAuthors.length + tempTags.length;
     const activeFiltersCount = selectedDomains.length + selectedAuthors.length + selectedTags.length;
+    const hasActiveFilters = activeFiltersCount > 0;
 
     return (
         <>
-            <button
-                type="button"
-                onClick={() => setIsOpen(true)}
-                className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 text-white text-sm hover:bg-white/20 transition-colors flex flex-row items-center gap-2 whitespace-nowrap"
-            >
-                <Filter size={16} />
-                {t("search.filterBy")}
-            </button>
+            <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={() => setIsOpen(true)}
+                    className={`px-4 py-2 rounded-full backdrop-blur-xl border text-sm hover:bg-white/20 transition-all flex flex-row items-center gap-2 whitespace-nowrap ${hasActiveFilters
+                        ? 'bg-primary/20 border-primary text-primary'
+                        : 'bg-white/10 border-white/20 text-white'
+                        }`}
+                >
+                    <Filter size={16} />
+                    {t("search.filter")}
+                    {hasActiveFilters && (
+                        <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                            {filteredBlogsCount}
+                        </span>
+                    )}
+                </button>
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={handleQuickClear}
+                        className="p-2 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors"
+                        aria-label="Clear all filters"
+                    >
+                        <X size={16} />
+                    </button>
+                )}
+            </div>
 
             <AnimatePresence>
                 {isOpen && (
@@ -194,7 +225,7 @@ export function FilterModal({
                                         onClick={handleApply}
                                         className="px-6 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                                     >
-                                        {t("search.done")}
+                                        {t("search.apply")}
                                     </button>
                                 </div>
                             </div>
