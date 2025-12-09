@@ -157,6 +157,15 @@ article {
   
   pre {
     @apply overflow-x-auto;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  code {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
   }
   
   @media (max-width: 640px) {
