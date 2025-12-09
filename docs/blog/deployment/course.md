@@ -1,16 +1,17 @@
 ---
-title: Deploying Next.js Applications to AWS: A Secure, Resource-Efficient, and Automated Approach
+title: Deploying Next.js Applications to AWS
 lang: en
 slug: deploy-nextjs-aws
 authors: Celine-Coralie
-tags: [AWS, Next.js, Terraform, Lambda, CloudFront, Deployment, Serverless]
-description: Deploying Next.js applications to AWS can be challenging, especially when balancing security, cost-efficiency, and automation. This article presents a production-ready deployment strategy using AWS Lambda, CloudFront, ECR, and Terraform, demonstrating how to deploy Next.js apps in a serverless, scalable, and cost-effective manner.
+tags: [AWS, Terraform, Lambda, Deployment]
+description: Deploying Next.js applications to AWS can be challenging, especially when balancing security, cost-efficiency, and automation. This article presents a production-ready deployment strategy using AWS Lambda, CloudFront, ECR, and Terraform.
 domain: DevOps
 date: 2025-12-09
 ---
 
-# Deploying Next.js Applications to AWS: A Secure, Resource-Efficient, and Automated Approach
+![Deployment](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRArMN2H_A7iV3quYIUVokHHiRpugy-M2cfHA&s)
 
+<!-- # Deploying Next.js Applications to AWS -->
 <!-- ## Table of Contents
 1. [Introduction](#introduction)
 2. [Architecture Overview](#architecture-overview)
@@ -39,11 +40,11 @@ Traditional deployment methods like EC2 instances or ECS clusters can be:
 - **Less secure**: More attack surface with always-on servers
 
 Our serverless approach using Lambda offers:
-- ✅ **Pay-per-request pricing** (no idle costs)
-- ✅ **Automatic scaling** from zero to thousands of requests
-- ✅ **Reduced attack surface** with ephemeral compute
-- ✅ **Built-in high availability** across multiple availability zones
-- ✅ **Infrastructure as Code** for reproducible deployments
+- **Pay-per-request pricing** (no idle costs)
+- **Automatic scaling** from zero to thousands of requests
+- **Reduced attack surface** with ephemeral compute
+- **Built-in high availability** across multiple availability zones
+- **Infrastructure as Code** for reproducible deployments
 
 ---
 
@@ -568,7 +569,7 @@ variable "nextauth_secret" {
 }
 ```
 
-✅ **Environment-specific secrets**: Different secrets per environment
+- Environment-specific secrets: Different secrets per environment
 ```yaml
 environment:
   name: ${{ inputs.environment }}
@@ -576,30 +577,30 @@ environment:
 
 ### 4. IAM Least Privilege
 
-✅ **Minimal Lambda permissions**: Only CloudWatch Logs access
+- Minimal Lambda permissions: Only CloudWatch Logs access
 ```hcl
 policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 ```
 
-✅ **Separate roles per function**: Each Lambda has its own execution role
+- Separate roles per function: Each Lambda has its own execution role
 
 ### 5. Database Security
 
-✅ **Connection pooling**: Use connection poolers (PgBouncer, Neon)
+- Connection pooling: Use connection poolers (PgBouncer, Neon)
 ```env
 DATABASE_URL="postgresql://user:pass@db-pooler.example.com:5432/db"
 ```
 
-✅ **SSL connections**: Enforce SSL for database connections
+- SSL connections: Enforce SSL for database connections
 ```env
 DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
 ```
 
-✅ **Separate credentials**: Different database users for different environments
+- Separate credentials: Different database users for different environments
 
 ### 6. Application Security
 
-✅ **Authentication**: Use NextAuth.js or similar
+- Authentication: Use NextAuth.js or similar
 ```typescript
 // pages/api/auth/[...nextauth].ts
 export default NextAuth({
@@ -613,9 +614,9 @@ export default NextAuth({
 })
 ```
 
-✅ **CSRF protection**: Built into NextAuth.js
+- CSRF protection: Built into NextAuth.js
 
-✅ **Input validation**: Use Zod or similar for request validation
+- Input validation: Use Zod or similar for request validation
 
 ---
 
@@ -654,10 +655,10 @@ module.exports = {
 
 ### 2. Docker Image Optimization
 
-✅ **Multi-stage builds**: Only production code in final image
-✅ **Layer caching**: Order Dockerfile commands by change frequency
-✅ **Alpine base**: Smallest possible base image
-✅ **.dockerignore**: Exclude unnecessary files
+- **Multi-stage builds**: Only production code in final image
+- **Layer caching**: Order Dockerfile commands by change frequency
+- **Alpine base**: Smallest possible base image
+- **.dockerignore**: Exclude unnecessary files
 
 ```dockerignore
 .next
@@ -739,33 +740,33 @@ Lambda functions are ephemeral, which can cause connection pool exhaustion.
 
 **Solutions:**
 
-1. **Use a connection pooler** (recommended)
-   ```env
-   DATABASE_URL="postgresql://user:pass@pooler.example.com:5432/db"
-   ```
+1.  **Use a connection pooler** (recommended)
+    ```env
+    DATABASE_URL="postgresql://user:pass@pooler.example.com:5432/db"
+    ```
 
-2. **Use Prisma's connection limit**
-   ```typescript
-   // prisma/schema.prisma
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   
-   // Set connection limit
-   const prisma = new PrismaClient({
-     datasources: {
-       db: {
-         url: process.env.DATABASE_URL + '?connection_limit=1',
-       },
-     },
-   })
-   ```
+2.  **Use Prisma's connection limit**
+    ```typescript
+    // prisma/schema.prisma
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
+    
+    // Set connection limit
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL + '?connection_limit=1',
+        },
+      },
+    })
+    ```
 
-3. **Use serverless-friendly databases**
-   - Neon (built-in connection pooling)
-   - PlanetScale (HTTP-based)
-   - Supabase (Supavisor pooler)
+3.  **Use serverless-friendly databases**
+    - Neon (built-in connection pooling)
+    - PlanetScale (HTTP-based)
+    - Supabase (Supavisor pooler)
 
 ---
 
@@ -901,9 +902,9 @@ This step:
 
 Configure GitHub environments with protection rules:
 
-1. **Required reviewers**: Require approval before production deployment
-2. **Wait timer**: Delay deployments by X minutes
-3. **Deployment branches**: Only allow deployments from `main` branch
+1.  **Required reviewers**: Require approval before production deployment
+2.  **Wait timer**: Delay deployments by X minutes
+3.  **Deployment branches**: Only allow deployments from `main` branch
 
 ### Destroy Workflow
 
@@ -954,25 +955,25 @@ Assumptions:
 
 ### Cost Optimization Tips
 
-1. **Increase cache hit rate**: More caching = fewer Lambda invocations
-   ```hcl
-   default_ttl = 3600  # Cache for 1 hour
-   ```
+1.  **Increase cache hit rate**: More caching = fewer Lambda invocations
+    ```hcl
+    default_ttl = 3600  # Cache for 1 hour
+    ```
 
-2. **Optimize Lambda memory**: Test different configurations
-   ```bash
-   # Use AWS Lambda Power Tuning
-   # https://github.com/alexcasalboni/aws-lambda-power-tuning
-   ```
+2.  **Optimize Lambda memory**: Test different configurations
+    ```bash
+    # Use AWS Lambda Power Tuning
+    # https://github.com/alexcasalboni/aws-lambda-power-tuning
+    ```
 
-3. **Use CloudFront compression**: Reduces data transfer costs
-   ```hcl
-   compress = true
-   ```
+3.  **Use CloudFront compression**: Reduces data transfer costs
+    ```hcl
+    compress = true
+    ```
 
-4. **Implement request coalescing**: Batch API calls where possible
+4.  **Implement request coalescing**: Batch API calls where possible
 
-5. **Use reserved capacity** (for high-traffic apps): Save up to 70%
+5.  **Use reserved capacity** (for high-traffic apps): Save up to 70%
 
 ### Cost Comparison
 
@@ -1054,18 +1055,18 @@ Monitor database performance:
 
 ### 6. Regular Maintenance Tasks
 
-✅ **Update dependencies**: Monthly security updates
+- Update dependencies: Monthly security updates
 ```bash
 npm audit fix
 npm update
 ```
 
-✅ **Rotate secrets**: Quarterly rotation
+- Rotate secrets: Quarterly rotation
 - Database passwords
 - API keys
 - NextAuth secret
 
-✅ **Review CloudWatch costs**: Monitor log retention
+- Review CloudWatch costs: Monitor log retention
 ```hcl
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${var.project_name}"
@@ -1073,7 +1074,7 @@ resource "aws_cloudwatch_log_group" "lambda" {
 }
 ```
 
-✅ **Clean up old ECR images**: Remove unused images
+- Clean up old ECR images: Remove unused images
 ```bash
 # Delete images older than 30 days
 aws ecr list-images --repository-name gis-docusign-production \
@@ -1093,23 +1094,20 @@ Deploying Next.js applications to AWS using Lambda, CloudFront, and Terraform pr
 
 ### Key Takeaways
 
-✅ **Serverless architecture**: Pay only for what you use, with automatic scaling
+- Serverless architecture: Pay only for what you use, with automatic scaling
 
-✅ **Infrastructure as Code**: Reproducible, version-controlled infrastructure
+- Infrastructure as Code: Reproducible, version-controlled infrastructure
 
-✅ **Security by design**: Multiple layers of security built-in
+- Security by design: Multiple layers of security built-in
 
-✅ **Cost optimization**: Significantly cheaper than traditional server deployments
+- Cost optimization: Significantly cheaper than traditional server deployments
 
-✅ **Developer experience**: Local development mirrors production
+- Developer experience: Local development mirrors production
 
-✅ **Automation**: CI/CD pipelines reduce manual errors
+- Automation: CI/CD pipelines reduce manual errors
 
 ### Best Practices Summary
 
-1. **Use multi-stage Docker builds** to minimize image size
-2. **Enable `output: 'standalone'`** in Next.js config
-3. **Implement proper secrets management** with GitHub Secrets
 4. **Configure CloudFront caching** to reduce Lambda invocations
 5. **Use connection pooling** for database connections
 6. **Monitor with CloudWatch** and set up alarms
@@ -1118,7 +1116,7 @@ Deploying Next.js applications to AWS using Lambda, CloudFront, and Terraform pr
 
 ### When to Use This Approach
 
-**✅ Good fit for:**
+**Good fit for:**
 - Low to medium traffic applications (< 1M requests/month)
 - Applications with variable traffic patterns
 - Cost-sensitive projects
