@@ -1,7 +1,6 @@
 "use client";
 import "@blog/i18n/boot";
 
-import { useMemo, useRef, useEffect } from "react";
 import { useQueryState, parseAsString, parseAsInteger, parseAsArrayOf } from "nuqs";
 import { Container } from "@blog/components/container";
 import { CourseCard } from "@blog/components/course";
@@ -20,6 +19,8 @@ interface Course {
   lang?: string;
   previews: Record<string, any>;
   tags?: string[];
+  authors?: string;
+  domain?: string;
   date?: string;
   author?: string;
   readingTime?: number;
@@ -33,91 +34,43 @@ interface CoursesClientProps {
 export function CoursesClient({ courses }: CoursesClientProps) {
   const { t, i18n } = useTranslation();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-
-  const [selectedDomains, setSelectedDomains] = useQueryState(
-    "domains",
-    parseAsArrayOf(parseAsString).withDefault([])
-  );
-  const [selectedAuthors, setSelectedAuthors] = useQueryState(
-    "authors",
-    parseAsArrayOf(parseAsString).withDefault([])
-  );
-  const [selectedTags, setSelectedTags] = useQueryState(
-    "tags",
-    parseAsArrayOf(parseAsString).withDefault([])
-  );
-  const [lang] = useQueryState("lang", parseAsString.withDefault("en"));
-
-  // Fetch filter data
-  const { data: allDomains = [] } = api.search.domains.useQuery();
-  const { data: allAuthors = [] } = api.search.authors.useQuery();
-  const { data: allTags = [] } = api.search.tags.useQuery();
-
-  // Check if any filters are active
-  const hasActiveFilters = selectedDomains.length > 0 || selectedAuthors.length > 0 || selectedTags.length > 0;
-
-  // Memoize filter inputs to prevent infinite re-renders
-  const filterInput = useMemo(() => ({
-    domains: selectedDomains.length > 0 ? selectedDomains : undefined,
-    authors: selectedAuthors.length > 0 ? selectedAuthors : undefined,
-    tags: selectedTags.length > 0 ? selectedTags : undefined,
-    lang: i18n.language?.startsWith("fr") ? "fr" : "en" as "en" | "fr",
-    limit: 10,
-  }), [
-    // Use JSON.stringify to ensure stability by value, not reference
-    JSON.stringify(selectedDomains),
-    JSON.stringify(selectedAuthors),
-    JSON.stringify(selectedTags),
-    i18n.language
-  ]);
-
-  // Use infinite scroll when filters are active
-  const {
-    data: filteredData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isFetching: isFilterFetching
-  } = api.post.filtered.useInfiniteQuery(
-    filterInput,
-    {
-      enabled: hasActiveFilters,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
-  );
-
-  // Intersection observer for infinite scroll
-  const lastPostRef = useRef<HTMLElement>(null);
-  const { ref, entry } = useIntersection({
-    root: lastPostRef.current,
-    threshold: 1,
-  });
-
-  useEffect(() => {
-    if (hasActiveFilters && entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasActiveFilters, entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const [domains, setDomains] = useQueryState("domains", parseAsArrayOf(parseAsString).withDefault([]));
+  const [authors, setAuthors] = useQueryState("authors", parseAsArrayOf(parseAsString).withDefault([]));
+  const [tags, setTags] = useQueryState("tags", parseAsArrayOf(parseAsString).withDefault([]));
 
   const perPage = 8;
 
-  // For regular browsing (no filters), use client-side filtering with pagination
+  // Filter courses based on language, domains, authors, and tags
   const filtered = useMemo(() => {
     if (hasActiveFilters) return []; // Don't use this when filters are active
 
     return courses.filter((c) => {
-      // Language filter - only show courses matching the selected language
-      if (c.lang && c.lang !== lang) {
-        return false;
+      // Language filter
+      if (lang === "fr") {
+        if ((c.lang ?? "").toLowerCase() !== "fr") return false;
+      } else {
+        // Default 'en': include english or missing lang
+        if ((c.lang?.toLowerCase() ?? "en") !== "en") return false;
       }
+
+      // Domain filter
+      if (domains.length > 0) {
+        if (!c.domain || !domains.includes(c.domain)) return false;
+      }
+
+      // Authors filter
+      if (authors.length > 0) {
+        if (!c.authors || !authors.includes(c.authors)) return false;
+      }
+
+      // Tags filter (course must have at least one of the selected tags)
+      if (tags.length > 0) {
+        if (!c.tags || !c.tags.some(tag => tags.includes(tag))) return false;
+      }
+
       return true;
     });
-  }, [courses, lang, hasActiveFilters]);
-
-  // Get the appropriate data based on whether filters are active
-  const displayData = hasActiveFilters
-    ? filteredData?.pages.flatMap((page) => page.blogs) ?? []
-    : filtered;
+  }, [courses, lang, domains, authors, tags]);
 
   const total = hasActiveFilters
     ? (filteredData?.pages[0]?.total ?? 0)
@@ -139,29 +92,15 @@ export function CoursesClient({ courses }: CoursesClientProps) {
           <CoursesHeader total={total} />
         </div>
         <CoursesSearch
-          filterSlot={
-            <FilterModal
-              domains={allDomains}
-              authors={allAuthors}
-              tags={allTags}
-              selectedDomains={selectedDomains}
-              selectedAuthors={selectedAuthors}
-              selectedTags={selectedTags}
-              onApply={(domains, authors, tags) => {
-                setSelectedDomains(domains.length > 0 ? domains : null);
-                setSelectedAuthors(authors.length > 0 ? authors : null);
-                setSelectedTags(tags.length > 0 ? tags : null);
-                setPage(1);
-              }}
-              filteredBlogsCount={total}
-            />
-          }
+          onFiltersChange={(filters) => {
+            setDomains(filters.domains);
+            setAuthors(filters.authors);
+            setTags(filters.tags);
+            setPage(1); // Reset to page 1 when filters change
+          }}
+          activeFilters={{ domains, authors, tags }}
+          totalResults={total}
         >
-          <div className="w-full">
-            {isFilterFetching && !isFetchingNextPage && hasActiveFilters && (
-              <div className="text-xs sm:text-sm opacity-70 mb-4">{t("search.searching")}</div>
-            )}
-          </div>
           <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pageItems.length > 0 ? (
               pageItems.map((item, i) => {

@@ -35,8 +35,7 @@ export type BlogMeta = {
     description?: string;
     lang?: string;
     tags?: string[];
-    author?: string;
-    readingTime?: number;
+    authors?: string;
     domain?: string;
 };
 
@@ -55,22 +54,20 @@ export async function getAllBlogMeta(): Promise<BlogMeta[]> {
                 : typeof rawTags === 'string'
                     ? rawTags.split(',').map((t) => t.trim()).filter(Boolean)
                     : undefined;
-            const rawAuthors = data.authors as unknown;
-            const author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
-                ? rawAuthors[0]
-                : typeof rawAuthors === 'string'
-                    ? rawAuthors
-                    : undefined;
+
+            // Extract authors field
+            const authors = typeof data.authors === 'string' ? data.authors : undefined;
+
+            // Extract domain field
             const domain = typeof data.domain === 'string' ? data.domain : undefined;
-            const readingTime = calculateReadingTime(parsed.content || '');
+
             metas.push({
                 slug: blogSlug,
                 title: typeof data.title === 'string' ? data.title : undefined,
                 description: typeof data.description === 'string' ? data.description : undefined,
                 lang: typeof data.lang === 'string' ? data.lang : undefined,
                 tags,
-                author,
-                readingTime,
+                authors,
                 domain,
             });
         } else {
