@@ -1,15 +1,11 @@
 ---
 title: How to Add a Blog Post
 slug: how-to-add-blog-post
-authors: christian-leghadjeu
 lang: en
-tags:
-  - documentation
-  - guide
-  - git
-  - contribution
-domain: Documentation
+authors: generated-guide
+tags: [documentation, guide, git, contribution]
 description: A comprehensive guide on how to contribute a blog post to the application, from forking the repository to opening a pull request.
+date: '2025-12-10'
 ---
 
 # How to Add a Blog Post
@@ -93,13 +89,11 @@ Open `course.md` in your text editor and add the required YAML front matter at t
 ---
 title: My New Feature Blog Post
 slug: my-new-feature
-authors: your-github-username
 lang: en
-tags:
-  - feature
-  - guide
-domain: Development
+authors: your-github-username
+tags: [feature, guide]
 description: A brief description of your blog post
+date: '2025-12-10'
 ---
 
 # Introduction
@@ -114,11 +108,11 @@ You can include code examples, lists, images, and more.
 **Front Matter Definitions:**
 - **title**: The display title of the blog post
 - **slug**: The URL-friendly identifier (usually matches directory name)
-- **authors**: Your GitHub username or name
 - **lang**: Language code (e.g., `en`, `de`, `fr`)
-- **tags**: A list of relevant tags
-- **domain**: The category or domain (e.g., `DevOps`, `Development`, `Security`)
+- **authors**: author's name
+- **tags**: Array of relevant tags (e.g., `[security, devops]`)
 - **description**: A brief summary of the post (optional but recommended)
+- **date**: Publication date in format `'YYYY-MM-DD'`
 
 ### Step 7: (Optional) Add Slides
 

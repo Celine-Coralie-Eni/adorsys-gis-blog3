@@ -1,6 +1,11 @@
 ---
 title: How to Add a Blog Post
 slug: how-to-add-blog-post
+lang: en
+authors: generated-guide
+tags: [documentation, guide, git, contribution, presentation]
+description: Slide presentation demonstrating how to contribute a blog post to the application.
+date: '2025-12-10'
 ---
 
 # How to Add a Blog Post
@@ -100,12 +105,11 @@ touch docs/blog/my-new-feature/course.md
 ---
 title: My Post Title
 slug: my-new-feature
-authors: your-github-username
 lang: en
-tags:
-  - guide
-domain: Development
+authors: your-github-username
+tags: [guide, tutorial]
 description: Brief description
+date: '2025-12-10'
 ---
 ```
 
