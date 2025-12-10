@@ -4,15 +4,27 @@ import "@blog/i18n/boot";
 import { useRef, useState, type PropsWithChildren } from "react";
 import { api } from "@blog/trpc/react";
 import { CourseCard } from "@blog/components/course";
-import { Search as SearchIcon, X as ClearIcon } from "react-feather";
+import { Search as SearchIcon, X as ClearIcon, Filter as FilterIcon } from "react-feather";
 import { useTranslation } from "react-i18next";
+import { FilterModal } from "@blog/components/FilterModal";
 
-export function CoursesSearch({ children }: PropsWithChildren) {
+interface CoursesSearchProps extends PropsWithChildren {
+  onFiltersChange?: (filters: { domains: string[]; authors: string[]; tags: string[] }) => void;
+  activeFilters?: { domains: string[]; authors: string[]; tags: string[] };
+}
+
+export function CoursesSearch({ children, onFiltersChange, activeFilters }: CoursesSearchProps) {
   const { t, i18n } = useTranslation();
   const [query, setQuery] = useState("");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const enabled = query.trim().length > 0;
   const formRef = useRef<HTMLFormElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const defaultFilters = { domains: [], authors: [], tags: [] };
+  const currentFilters = activeFilters ?? defaultFilters;
+  const activeFilterCount = currentFilters.domains.length + currentFilters.authors.length + currentFilters.tags.length;
+
   const { data, isFetching } = api.search.cards.useQuery(
     { q: query, limit: 25, lang: i18n.language?.startsWith("fr") ? "fr" : "en" },
     { enabled }
@@ -20,9 +32,46 @@ export function CoursesSearch({ children }: PropsWithChildren) {
 
   return (
     <div className="w-full">
-      <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2 max-w-3xl px-4 sm:px-0">
+      <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2 max-w-3xl px-4 sm:px-0 relative">
+        {/* Filter Button - Positioned absolutely to not affect search width */}
+        <div className="absolute left-4 sm:left-0 top-0 flex items-center gap-1 z-10">
+          <button
+            onClick={() => setIsFilterModalOpen(true)}
+            className="relative inline-flex h-9 sm:h-10 items-center justify-center rounded-full px-3 sm:px-4 backdrop-blur-xl
+                       ring-1 ring-white/20 hover:ring-primary/40
+                       bg-gradient-to-r from-white/10 via-white/5 to-white/10
+                       transition-all hover:scale-105"
+            aria-label="Filter"
+          >
+            <FilterIcon size={16} className="text-white/90" />
+            {activeFilterCount > 0 && (
+              <span className="ml-1.5 px-1.5 py-0.5 bg-cyan-500 text-white text-xs font-semibold rounded-full">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          {/* Clear Filters X Button - shown when filters are active */}
+          {activeFilterCount > 0 && (
+            <button
+              onClick={() => {
+                if (onFiltersChange) {
+                  onFiltersChange({ domains: [], authors: [], tags: [] });
+                }
+              }}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full
+                        bg-white/10 hover:bg-white/20 transition-all hover:scale-105"
+              aria-label="Clear all filters"
+              title="Clear all filters"
+            >
+              <ClearIcon size={14} className="text-white/90" />
+            </button>
+          )}
+        </div>
+
+        {/* Search Form - Full width */}
         <form
-          className="flex items-center gap-2"
+          className="w-full"
           onSubmit={(e) => {
             e.preventDefault();
           }}
@@ -93,6 +142,18 @@ export function CoursesSearch({ children }: PropsWithChildren) {
       ) : (
         <div className="mt-12 sm:mt-16 md:mt-24 xl:mt-28">{children}</div>
       )}
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        initialFilters={currentFilters}
+        onApply={(filters) => {
+          if (onFiltersChange) {
+            onFiltersChange(filters);
+          }
+        }}
+      />
     </div>
   );
-} 
+}

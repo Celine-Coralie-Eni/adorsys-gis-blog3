@@ -25,6 +25,8 @@ export type BlogMeta = {
     description?: string;
     lang?: string;
     tags?: string[];
+    authors?: string;
+    domain?: string;
 };
 
 export async function getAllBlogMeta(): Promise<BlogMeta[]> {
@@ -42,12 +44,21 @@ export async function getAllBlogMeta(): Promise<BlogMeta[]> {
                 : typeof rawTags === 'string'
                     ? rawTags.split(',').map((t) => t.trim()).filter(Boolean)
                     : undefined;
+
+            // Extract authors field
+            const authors = typeof data.authors === 'string' ? data.authors : undefined;
+
+            // Extract domain field
+            const domain = typeof data.domain === 'string' ? data.domain : undefined;
+
             metas.push({
                 slug: blogSlug,
                 title: typeof data.title === 'string' ? data.title : undefined,
                 description: typeof data.description === 'string' ? data.description : undefined,
                 lang: typeof data.lang === 'string' ? data.lang : undefined,
                 tags,
+                authors,
+                domain,
             });
         } else {
             metas.push({ slug: blogSlug });

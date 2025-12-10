@@ -36,6 +36,17 @@ async function getCourses() {
             .map((t) => t.trim())
             .filter(Boolean);
         }
+
+        // Extract authors field
+        const authors = typeof (course as any)?.authors === "string"
+          ? (course as any).authors
+          : undefined;
+
+        // Extract domain field
+        const domain = typeof (course as any)?.domain === "string"
+          ? (course as any).domain
+          : undefined;
+
         // Determine created date: prefer course front matter, then slides, then generated mapping, then file mtime
         let created: string | undefined = undefined;
         if (typeof (course as any)?.date === "string") {
@@ -58,7 +69,7 @@ async function getCourses() {
             );
             const stat = await fs.stat(coursePath);
             created = stat.mtime.toISOString();
-          } catch {}
+          } catch { }
         }
 
         return {
@@ -68,6 +79,8 @@ async function getCourses() {
           lang,
           previews,
           tags,
+          authors,
+          domain,
           date: created,
         };
       } catch {
@@ -77,6 +90,8 @@ async function getCourses() {
           description: undefined,
           lang: undefined,
           previews: {},
+          authors: undefined,
+          domain: undefined,
         };
       }
     })

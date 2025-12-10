@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
+import { useQueryState, parseAsString, parseAsInteger, parseAsArrayOf } from "nuqs";
 import { Container } from "@blog/components/container";
 import { CourseCard } from "@blog/components/course";
 import { PaginationNuqs } from "@blog/components/pagination/pagination-nuqs";
@@ -15,6 +15,8 @@ interface Course {
   lang?: string;
   previews: Record<string, any>;
   tags?: string[];
+  authors?: string;
+  domain?: string;
   date?: string;
 }
 
@@ -25,17 +27,41 @@ interface CoursesClientProps {
 export function CoursesClient({ courses }: CoursesClientProps) {
   const [lang, setLang] = useQueryState("lang", parseAsString.withDefault("en"));
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  
+  const [domains, setDomains] = useQueryState("domains", parseAsArrayOf(parseAsString).withDefault([]));
+  const [authors, setAuthors] = useQueryState("authors", parseAsArrayOf(parseAsString).withDefault([]));
+  const [tags, setTags] = useQueryState("tags", parseAsArrayOf(parseAsString).withDefault([]));
+
   const perPage = 8;
 
-  // Filter courses based on language
+  // Filter courses based on language, domains, authors, and tags
   const filtered = useMemo(() => {
     return courses.filter((c) => {
-      if (lang === "fr") return (c.lang ?? "").toLowerCase() === "fr";
-      // Default 'en': include english or missing lang
-      return (c.lang?.toLowerCase() ?? "en") === "en";
+      // Language filter
+      if (lang === "fr") {
+        if ((c.lang ?? "").toLowerCase() !== "fr") return false;
+      } else {
+        // Default 'en': include english or missing lang
+        if ((c.lang?.toLowerCase() ?? "en") !== "en") return false;
+      }
+
+      // Domain filter
+      if (domains.length > 0) {
+        if (!c.domain || !domains.includes(c.domain)) return false;
+      }
+
+      // Authors filter
+      if (authors.length > 0) {
+        if (!c.authors || !authors.includes(c.authors)) return false;
+      }
+
+      // Tags filter (course must have at least one of the selected tags)
+      if (tags.length > 0) {
+        if (!c.tags || !c.tags.some(tag => tags.includes(tag))) return false;
+      }
+
+      return true;
     });
-  }, [courses, lang]);
+  }, [courses, lang, domains, authors, tags]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / perPage));
@@ -52,7 +78,15 @@ export function CoursesClient({ courses }: CoursesClientProps) {
         <div className="mb-6 space-y-4">
           <CoursesHeader total={total} />
         </div>
-        <CoursesSearch>
+        <CoursesSearch
+          onFiltersChange={(filters) => {
+            setDomains(filters.domains);
+            setAuthors(filters.authors);
+            setTags(filters.tags);
+            setPage(1); // Reset to page 1 when filters change
+          }}
+          activeFilters={{ domains, authors, tags }}
+        >
           <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pageItems.map(
               ({ slug, title, description, lang, previews, tags, date }) => (
