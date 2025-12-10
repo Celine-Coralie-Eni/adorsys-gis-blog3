@@ -1,7 +1,7 @@
 ---
 title: How to Add a Blog Post
 slug: how-to-add-blog-post
-authors: generated-guide
+authors: christian-leghadjeu
 lang: en
 tags:
   - documentation
