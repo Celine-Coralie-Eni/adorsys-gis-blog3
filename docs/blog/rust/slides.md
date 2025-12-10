@@ -1,20 +1,19 @@
 ---
+
 title: Rust
 slug: rust
 tags: [systems, performance, safety]
 lang: fr
-authors: Celine-Coralie
-domain: Development
+
+---
+
+![Rust](https://www.rust-lang.org/static/images/rust-logo-blk.svg)
 
 ---
 
 ## Introduction à Rust
 
 Rust est un langage de programmation **système** moderne, conçu pour être **rapide**, **sûr en mémoire**, et **concurrent** sans crainte des erreurs classiques comme les segfaults.
-
----
-
-![Rust](https://www.rust-lang.org/static/images/rust-logo-blk.svg)
 
 ---
 

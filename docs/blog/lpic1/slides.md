@@ -1,18 +1,17 @@
 ---
 title: Certification LPIC-1
 lang: fr
-authors: Celine-Coralie
 slug: lpic1-cert
 tags: [linux, certification, administrateur système]
 description: La certification LPIC-1 est une accréditation professionnelle pour les administrateurs système Linux, validant les compétences de base en gestion de systèmes Linux.
-domain: DevOps
 ---
 
-# Introduction à la certification LPIC-1
 
 ![LPIC-1](https://www.lpi.org/wp-content/uploads/2023/05/LPIC-1-1.jpg)
 
 ---
+
+# Introduction à la certification LPIC-1
 
 LPIC-1, proposée par le Linux Professional Institute (LPI), est le premier niveau de certification Linux pour les administrateurs système. Elle valide les compétences en gestion des systèmes Linux, y compris les opérations en ligne de commande, les systèmes de fichiers et les bases du réseau. LPIC-1 se compose de deux examens : 101 et 102.
 
@@ -62,5 +61,3 @@ graph TD
 ## Conclusion
 
 La certification LPIC-1 dote les administrateurs système de compétences Linux essentielles, renforçant les perspectives de carrière. Avec une étude ciblée et de la pratique, les candidats peuvent réussir les examens et établir une base solide pour des certifications Linux avancées.
-
----
