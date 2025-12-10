@@ -82,6 +82,9 @@ async function getCourses() {
           authors,
           domain,
           date: created,
+          author,
+          readingTime,
+          domain,
         };
       } catch {
         return {

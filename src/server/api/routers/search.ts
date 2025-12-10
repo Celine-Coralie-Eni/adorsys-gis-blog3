@@ -95,9 +95,8 @@ export const searchRouter = createTRPCRouter({
             tags: z.array(z.string()).optional(),
         }))
         .query(async ({ input }) => {
-            const results = await searchContent(input.q, input.limit ?? 20);
-            const blogResults = results.filter((r) => r.type === 'blog');
-            const slugs = blogResults.map((r) => r.url.replace(/^\/?b\//, ''));
+            const { q, limit, cursor, lang } = input;
+            const results = await searchContent(q, 1000); // Fetch a large number to simulate all results
 
             const itemsRaw = await Promise.all(
                 slugs.map(async (slug) => {
@@ -157,4 +156,3 @@ export const searchRouter = createTRPCRouter({
             return items;
         }),
 });
-

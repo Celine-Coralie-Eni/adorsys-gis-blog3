@@ -9,6 +9,16 @@ async function* dir_api(dir: string) {
     }
 }
 
+function calculateReadingTime(content: string): number {
+    // Strip HTML tags
+    const plainText = content.replace(/<[^>]+>/g, ' ');
+    // Count words
+    const words = plainText.trim().split(/\s+/).filter(Boolean).length;
+    // A more conservative reading speed: 60 words per minute
+    const minutes = Math.ceil(words / 60);
+    return Math.max(1, minutes); // At least 1 minute
+}
+
 export async function getAllBlogs() {
     const fullPath = path.join(process.cwd(), 'docs', 'blog');
     const dirs = dir_api(fullPath);

@@ -3,8 +3,9 @@ title: PRISMA ORM
 lang: en
 slug: prisma-orm
 authors: Micheal Ndoh
-tags: [database, orm, development]
+tags: [database, orm]
 description: Prisma is an open-source ORM (Object-Relational Mapping) tool that simplifies database interactions for developers by providing a type-safe, intuitive API.
+domain: Development
 ---
 
 ![Prisma ORM](https://cdn.hashnode.com/res/hashnode/image/upload/v1695624644455/31ed5d49-a9f8-4091-a889-4f7a40319dbb.png?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp)

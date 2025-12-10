@@ -10,6 +10,11 @@ export interface SearchDocument {
     type: 'blog' | 'res' | 'doc';
     content: string;
     tags?: string[];
+    author?: string;
+    description?: string;
+    readingTime?: number;
+    domain?: string;
+    lang?: string;
 }
 
 export interface SearchResultItem {
@@ -19,6 +24,10 @@ export interface SearchResultItem {
     type: SearchDocument['type'];
     snippet: string;
     score: number;
+    author?: string;
+    readingTime?: number;
+    tags?: string[];
+    lang?: string;
 }
 
 let cachedIndex: SearchDocument[] | null = null;
@@ -64,19 +73,24 @@ async function buildIndex(): Promise<SearchDocument[]> {
     const docs: SearchDocument[] = [];
     for (const absPath of files) {
         const rel = path.relative(docsRoot, absPath).replace(/\\/g, '/');
-        const file = await fs.readFile(absPath, 'utf8');
-        const parsed = matter(file);
+        const fileContents = await fs.readFile(absPath, 'utf8');
+        const matterResult = matter(fileContents);
 
-        const contentPlain = stripMarkdown(parsed.content ?? '');
+        const contentPlain = stripMarkdown(matterResult.content ?? '');
 
         const pathParts = rel.split('/');
         const isBlog = pathParts[0] === 'blog' && pathParts.length >= 3;
         const isRes = pathParts[0] === 'res' && pathParts.length === 2;
 
-        let type: SearchDocument['type'];
+        let type: 'blog' | 'res' | 'doc' = 'doc';
         let url = '';
         let slug = '';
         let tags: string[] | undefined;
+        let author: string | undefined;
+        let description: string | undefined;
+        let domain: string | undefined;
+        let readingTime: number | undefined;
+        let lang: string | undefined;
 
         if (isBlog) {
             type = 'blog';
@@ -84,12 +98,32 @@ async function buildIndex(): Promise<SearchDocument[]> {
             slug = blogSlug;
             url = `/b/${blogSlug}`;
             if (rel.endsWith('/course.md')) {
-                const raw = (parsed.data as Record<string, unknown>)?.tags as unknown;
-                if (Array.isArray(raw)) {
-                    tags = raw.map((t) => String(t));
-                } else if (typeof raw === 'string') {
-                    tags = raw.split(',').map((t) => t.trim()).filter(Boolean);
+                const rawTags = matterResult.data.tags as unknown;
+                if (Array.isArray(rawTags)) {
+                    tags = rawTags.map((t) => String(t));
+                } else if (typeof rawTags === 'string') {
+                    tags = rawTags.split(',').map((t) => t.trim()).filter(Boolean);
                 }
+                const rawAuthors = matterResult.data.authors as unknown;
+                author = Array.isArray(rawAuthors) && typeof rawAuthors[0] === 'string'
+                    ? rawAuthors[0]
+                    : typeof rawAuthors === 'string'
+                        ? rawAuthors
+                        : undefined;
+
+                const rawDescription = matterResult.data.description;
+                description = typeof rawDescription === 'string' ? rawDescription : undefined;
+
+                const rawDomain = matterResult.data.domain;
+                domain = typeof rawDomain === 'string' ? rawDomain : undefined;
+
+                const rawLang = matterResult.data.lang;
+                lang = typeof rawLang === 'string' ? rawLang : undefined;
+
+                const content = matterResult.content || '';
+                const plainText = content.replace(/<[^>]+>/g, ' ');
+                const words = plainText.trim().split(/\s+/).filter(Boolean).length;
+                readingTime = Math.max(1, Math.ceil(words / 60));
             }
         } else if (isRes) {
             type = 'res';
@@ -102,7 +136,7 @@ async function buildIndex(): Promise<SearchDocument[]> {
             url = `/`;
         }
 
-        const titleFromFrontMatter = (parsed.data as Record<string, unknown>)?.title;
+        const titleFromFrontMatter = (matterResult.data as Record<string, unknown>)?.title;
         const title = typeof titleFromFrontMatter === 'string' && titleFromFrontMatter.trim().length > 0
             ? titleFromFrontMatter.trim()
             : slug;
@@ -115,6 +149,11 @@ async function buildIndex(): Promise<SearchDocument[]> {
             type,
             content: contentPlain,
             tags,
+            author,
+            description,
+            domain,
+            readingTime,
+            lang,
         });
     }
 
@@ -137,19 +176,24 @@ function scoreDocument(query: string, doc: SearchDocument): number {
 
     let score = 0;
     const titleLower = doc.title.toLowerCase();
-    const contentLower = doc.content.toLowerCase();
+    const descriptionLower = (doc.description ?? '').toLowerCase();
     const tagsLower = (doc.tags ?? []).map((t) => t.toLowerCase());
+    const authorLower = (doc.author ?? '').toLowerCase();
 
     for (const w of words) {
-        if (titleLower.includes(w)) score += 5;
-        const titleMatches = titleLower.split(w).length - 1;
-        score += titleMatches * 10; // strong boost for title frequency
+        // Title matching - highest priority
+        if (titleLower.includes(w)) {
+            const titleMatches = titleLower.split(w).length - 1;
+            score += titleMatches * 15; // strong boost for title matches
+        }
 
-        if (contentLower.includes(w)) score += 1;
-        const contentMatches = contentLower.split(w).length - 1;
-        score += contentMatches * 2;
+        // Description matching
+        if (descriptionLower && descriptionLower.includes(w)) {
+            const descMatches = descriptionLower.split(w).length - 1;
+            score += descMatches * 8; // moderate boost for description matches
+        }
 
-        // Boost for tag matches
+        // Tag matching - exact or partial
         for (const t of tagsLower) {
             if (t === w) {
                 score += 120; // exact tag match: very strong
@@ -157,10 +201,22 @@ function scoreDocument(query: string, doc: SearchDocument): number {
                 score += 40; // partial tag match
             }
         }
-    }
 
-    // Slight boost by type if desired
-    if (doc.type === 'blog') score += 1;
+        // Domain matching - exact or partial
+        const domainLower = (doc.domain ?? '').toLowerCase();
+        if (domainLower.includes(w)) {
+            score += 20; // boost for domain match
+        }
+
+        // Author matching - exact or partial
+        if (authorLower) {
+            if (authorLower === w) {
+                score += 100; // exact author match: very strong
+            } else if (authorLower.includes(w)) {
+                score += 50; // partial author match
+            }
+        }
+    }
 
     return score;
 }
@@ -182,7 +238,55 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
     const index = await ensureIndex();
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
 
-    // 1) If the query matches any tag exactly, return only blog posts with that tag
+    // 1a) If the query matches any author (exact or partial), return only blog posts by matching authors
+    const allAuthors = [...new Set(index.map(doc => doc.author).filter((a): a is string => !!a))];
+    const queryLower = query.toLowerCase().trim();
+
+    // Check for exact match first (entire query matches author name exactly)
+    const exactAuthorMatch = allAuthors.find(a => a.toLowerCase() === queryLower);
+    if (exactAuthorMatch) {
+        const authorMatchedDocs = index.filter(doc => doc.author?.toLowerCase() === queryLower);
+        return authorMatchedDocs.map(doc => ({
+            id: doc.id,
+            title: doc.title,
+            url: doc.url,
+            type: doc.type,
+            snippet: makeSnippet(doc.content, query),
+            score: 1000,
+            author: doc.author,
+            readingTime: doc.readingTime,
+            tags: doc.tags,
+            lang: doc.lang,
+        }));
+    }
+
+    // Check if ALL words in the query are contained in any single author's name
+    // This ensures "micheal security" won't match "Micheal Ndoh" (security is not in the name)
+    // But "micheal ndoh" will match "Micheal Ndoh"
+    const allWordsMatchAuthor = allAuthors.filter(authorName => {
+        const authorLower = authorName.toLowerCase();
+        return words.every(word => authorLower.includes(word));
+    });
+
+    if (allWordsMatchAuthor.length > 0) {
+        const authorMatchedDocs = index.filter(doc =>
+            doc.author && allWordsMatchAuthor.some(a => a.toLowerCase() === doc.author?.toLowerCase())
+        );
+        return authorMatchedDocs.map(doc => ({
+            id: doc.id,
+            title: doc.title,
+            url: doc.url,
+            type: doc.type,
+            snippet: makeSnippet(doc.content, query),
+            score: 1000,
+            author: doc.author,
+            readingTime: doc.readingTime,
+            tags: doc.tags,
+            lang: doc.lang,
+        }));
+    }
+
+    // 1b) If the query matches any tag exactly, return only blog posts with that tag
     const tagMatchedDocs = index.filter((doc) =>
         doc.type === 'blog' && (doc.tags ?? []).some((t) => words.includes(t.toLowerCase()))
     );
@@ -195,7 +299,11 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
                 url: doc.url,
                 type: doc.type,
                 snippet: makeSnippet(doc.content, query),
-                score: 1000, // strong, deterministic ordering later by dedupe/map
+                score: 1000,
+                author: doc.author,
+                readingTime: doc.readingTime,
+                tags: doc.tags,
+                lang: doc.lang,
             }))
             // Deduplicate by URL in case both course/slides exist with same URL; prefer first
             .reduce((acc, item) => {
@@ -223,6 +331,10 @@ export async function searchContent(query: string, limit = 20): Promise<SearchRe
             type: doc.type,
             snippet: makeSnippet(doc.content, query),
             score,
+            author: doc.author,
+            readingTime: doc.readingTime,
+            tags: doc.tags,
+            lang: doc.lang,
         };
         const prev = deduped.get(item.url);
         if (!prev || item.score > prev.score) deduped.set(item.url, item);

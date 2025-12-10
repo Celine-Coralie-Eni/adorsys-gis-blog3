@@ -1,9 +1,10 @@
 ---
-
 title: Rust
 slug: rust
 tags: [systems, performance, safety]
 lang: fr
+authors: Celine-Coralie
+domain: Development
 
 ---
 

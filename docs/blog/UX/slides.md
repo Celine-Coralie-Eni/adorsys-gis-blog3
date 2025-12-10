@@ -2,7 +2,7 @@
 title: UI/UX Design
 slug: ui-ux-design
 authors: Micheal Ndoh
-tags: [design, user interface, user experience]
+tags: [user interface, user experience]
 lang: en
 ---
 

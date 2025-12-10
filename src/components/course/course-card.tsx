@@ -13,6 +13,8 @@ interface CourseCardProps {
   slide1Html?: string;
   tags?: string[];
   date?: string;
+  author?: string;
+  readingTime?: number;
   // When provided, used to construct a return URL so the detail page can
   // navigate back to the originating list with correct pagination/filters
   returnTo?: string;
@@ -26,6 +28,8 @@ export function CourseCard({
   slide1Html,
   tags,
   date,
+  author,
+  readingTime,
   returnTo,
 }: Readonly<CourseCardProps>) {
   const { t, i18n } = useTranslation();
@@ -59,6 +63,18 @@ export function CourseCard({
   if (!hasCourse) {
     computedDescription = t("courseCard.contentSoon");
   }
+
+  const formatReadingTime = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${remainingMinutes}m`;
+  };
 
   const currentUrl = useReturnTo();
   const blogHref = `/b/${slug}?returnTo=${encodeURIComponent(
@@ -132,11 +148,13 @@ export function CourseCard({
           <h3 className="mb-1.5 text-base sm:text-lg font-semibold text-white">
             {title}
           </h3>
-          {formattedDate && (
-            <div className="text-xs text-neutral-400 mb-1.5">
-              {formattedDate}
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-400 mb-1.5">
+            {formattedDate && <span>{formattedDate}</span>}
+            {formattedDate && (readingTime || author) && <span>•</span>}
+            {readingTime && <span>{formatReadingTime(readingTime)}</span>}
+            {readingTime && author && <span>•</span>}
+            {author && <span>by {author}</span>}
+          </div>
           {computedDescription && (
             <p className="mb-2 sm:mb-3 line-clamp-3 text-xs sm:text-sm text-neutral-300">
               {computedDescription}

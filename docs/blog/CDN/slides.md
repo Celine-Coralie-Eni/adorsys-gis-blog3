@@ -1,7 +1,7 @@
 ---
 title: CDNs
 slug: cdn
-tags: [security, development, network]
+tags: [network]
 ---
 
 ![what is cdn](https://www.shutterstock.com/image-vector/cdn-content-delivery-network-information-260nw-2250320215.jpg)

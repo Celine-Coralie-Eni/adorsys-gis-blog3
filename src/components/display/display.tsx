@@ -63,6 +63,22 @@ export default function Display({ data }: DisplayProps) {
     };
   }, []);
 
+    // Automatically set browser zoom to 200% in fullscreen
+    useEffect(() => {
+      const handleFullscreenChange = () => {
+        if (document.fullscreenElement) {
+          document.body.style.zoom = '2';
+        } else {
+          document.body.style.zoom = '1';
+        }
+      };
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      return () => {
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        document.body.style.zoom = '1';
+      };
+    }, []);
+
   // Remove aggressive DOM style mutations; prose is handled by CSS
   
   return (
