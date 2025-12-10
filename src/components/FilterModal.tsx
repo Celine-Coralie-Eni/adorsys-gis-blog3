@@ -116,7 +116,7 @@ export function FilterModal({
                                         key={option}
                                         onClick={() => toggleFilter(activeTab, option)}
                                         className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-all ${isSelected
-                                            ? "bg-cyan-500 text-white"
+                                            ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
                                             : "bg-gray-800/80 text-white/80 hover:bg-gray-700 border border-white/10"
                                             }`}
                                     >
@@ -139,7 +139,7 @@ export function FilterModal({
                     </button>
                     <button
                         onClick={handleApply}
-                        className="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold rounded-lg transition-colors"
+                        className="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold rounded-lg transition-all shadow-lg shadow-cyan-500/20"
                     >
                         Apply
                     </button>
