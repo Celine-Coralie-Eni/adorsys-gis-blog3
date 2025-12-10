@@ -27,7 +27,14 @@ export function CoursesSearch({ children, onFiltersChange, activeFilters, totalR
   const activeFilterCount = currentFilters.domains.length + currentFilters.authors.length + currentFilters.tags.length;
 
   const { data, isFetching } = api.search.cards.useQuery(
-    { q: query, limit: 25, lang: i18n.language?.startsWith("fr") ? "fr" : "en" },
+    {
+      q: query,
+      limit: 25,
+      lang: i18n.language?.startsWith("fr") ? "fr" : "en",
+      domains: currentFilters.domains,
+      authors: currentFilters.authors,
+      tags: currentFilters.tags
+    },
     { enabled }
   );
 
