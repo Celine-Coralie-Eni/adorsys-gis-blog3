@@ -54,28 +54,11 @@ export function CoursesSearch({ children, onFiltersChange, activeFilters, totalR
             >
               <FilterIcon size={16} className="text-white/90" />
               {activeFilterCount > 0 && totalResults !== undefined && (
-                <span className="ml-1.5 px-1.5 py-0.5 bg-cyan-500 text-white text-xs font-semibold rounded-full">
+                <span className="ml-1.5 px-1.5 py-0.5 bg-primary text-white text-xs font-semibold rounded-full">
                   {totalResults}
                 </span>
               )}
             </button>
-
-            {/* Clear Filters X Button - shown when filters are active */}
-            {activeFilterCount > 0 && (
-              <button
-                onClick={() => {
-                  if (onFiltersChange) {
-                    onFiltersChange({ domains: [], authors: [], tags: [] });
-                  }
-                }}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full
-                          bg-white/10 hover:bg-white/20 transition-all hover:scale-105"
-                aria-label="Clear all filters"
-                title="Clear all filters"
-              >
-                <ClearIcon size={14} className="text-white/90" />
-              </button>
-            )}
           </div>
 
           {/* Search Form - Takes remaining width */}
@@ -91,6 +74,20 @@ export function CoursesSearch({ children, onFiltersChange, activeFilters, totalR
                          ring-1 ring-white/20 focus-within:ring-primary/40
                          bg-gradient-to-r from-white/10 via-white/5 to-white/10"
             >
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={() => {
+                    if (onFiltersChange) {
+                      onFiltersChange({ domains: [], authors: [], tags: [] });
+                    }
+                  }}
+                  className="mr-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500/20 text-red-500 transition-colors hover:bg-red-500/40"
+                  aria-label="Clear all filters"
+                  title="Clear all filters"
+                >
+                  <ClearIcon size={16} />
+                </button>
+              )}
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -133,7 +130,11 @@ export function CoursesSearch({ children, onFiltersChange, activeFilters, totalR
             <div className="text-xs sm:text-sm opacity-70">{t("search.searching")}</div>
           )}
           {!isFetching && data && data.length === 0 && (
-            <div className="text-xs sm:text-sm opacity-70">{t("search.noResults")}</div>
+            <div className="text-center py-16 text-white/50">
+              <SearchIcon className="w-16 h-16 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold">No Results Found</h3>
+              <p>Try a different search query.</p>
+            </div>
           )}
           <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {data?.map(({ slug, title, description, lang, tags, previews }) => (

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { X } from "react-feather";
+import { useState } from "react";
+import { X, Search } from "react-feather";
 import { api } from "@blog/trpc/react";
 
 type FilterTab = "domains" | "authors" | "tags";
@@ -91,13 +91,13 @@ export function FilterModal({
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-3 text-sm font-medium capitalize transition-colors relative ${activeTab === tab
-                                ? "text-cyan-400"
+                                ? "text-primary"
                                 : "text-white/60 hover:text-white/80"
                                 }`}
                         >
                             {tab}
                             {activeTab === tab && (
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400" />
+                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                             )}
                         </button>
                     ))}
@@ -107,7 +107,11 @@ export function FilterModal({
                 <div className="p-5 max-h-96 overflow-y-auto">
                     <div className="flex flex-wrap gap-2.5">
                         {currentOptions.length === 0 ? (
-                            <p className="text-white/50 text-sm">No {activeTab} available</p>
+                            <div className="w-full flex flex-col items-center justify-center text-center text-white/50 py-10">
+                                <Search className="w-12 h-12 mb-4" />
+                                <p className="text-lg font-semibold">No matches found</p>
+                                <p className="text-sm">Try adjusting your filters.</p>
+                            </div>
                         ) : (
                             currentOptions.map((option) => {
                                 const isSelected = selectedFilters[activeTab].includes(option);
@@ -116,7 +120,7 @@ export function FilterModal({
                                         key={option}
                                         onClick={() => toggleFilter(activeTab, option)}
                                         className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-all ${isSelected
-                                            ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
                                             : "bg-gray-800/80 text-white/80 hover:bg-gray-700 border border-white/10"
                                             }`}
                                     >
@@ -139,7 +143,7 @@ export function FilterModal({
                     </button>
                     <button
                         onClick={handleApply}
-                        className="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold rounded-lg transition-all shadow-lg shadow-cyan-500/20"
+                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-lg transition-all shadow-lg shadow-primary/20"
                     >
                         Apply
                     </button>

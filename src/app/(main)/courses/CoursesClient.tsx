@@ -7,6 +7,7 @@ import { PaginationNuqs } from "@blog/components/pagination/pagination-nuqs";
 import { CoursesHeader } from "./CoursesHeader";
 import { CoursesSearch } from "./CoursesSearch";
 import { useMemo } from "react";
+import { Search } from "react-feather";
 
 interface Course {
   slug: string;
@@ -88,31 +89,41 @@ export function CoursesClient({ courses }: CoursesClientProps) {
           activeFilters={{ domains, authors, tags }}
           totalResults={total}
         >
-          <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {pageItems.map(
-              ({ slug, title, description, lang, previews, tags, date }) => (
-                <CourseCard
-                  key={slug}
-                  slug={slug}
-                  title={title}
-                  description={description}
-                  lang={lang}
-                  slide1Html={(previews as any)?.firstHtml}
-                  tags={tags}
-                  date={date}
-                  returnTo={currentListUrl}
-                />
-              )
-            )}
-          </div>
-          {pageCount > 1 && (
-            <div className="mt-8 sm:mt-10 flex items-center justify-center">
-              <PaginationNuqs
-                currentPage={current}
-                totalPages={pageCount}
-                maxVisiblePages={5}
-                onPageChange={setPage}
-              />
+          {pageItems.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {pageItems.map(
+                  ({ slug, title, description, lang, previews, tags, date }) => (
+                    <CourseCard
+                      key={slug}
+                      slug={slug}
+                      title={title}
+                      description={description}
+                      lang={lang}
+                      slide1Html={(previews as any)?.firstHtml}
+                      tags={tags}
+                      date={date}
+                      returnTo={currentListUrl}
+                    />
+                  )
+                )}
+              </div>
+              {pageCount > 1 && (
+                <div className="mt-8 sm:mt-10 flex items-center justify-center">
+                  <PaginationNuqs
+                    currentPage={current}
+                    totalPages={pageCount}
+                    maxVisiblePages={5}
+                    onPageChange={setPage}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-16 text-white/50">
+              <Search className="w-16 h-16 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold">No Matches Found</h3>
+              <p>Try adjusting your search or filter criteria.</p>
             </div>
           )}
         </CoursesSearch>
