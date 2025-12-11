@@ -42,24 +42,34 @@ export function CoursesSearch({ children, onFiltersChange, activeFilters, totalR
     <div className="w-full">
       <div className="mb-3 sm:mb-4 mx-auto w-full md:w-3/4 lg:w-1/2 max-w-3xl px-4 sm:px-0">
         <div className="flex items-center gap-3">
-          {/* Filter Button - Outside search bar */}
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => setIsFilterModalOpen(true)}
-              className="relative inline-flex h-9 sm:h-10 items-center justify-center rounded-full px-3 sm:px-4 backdrop-blur-xl
-                         ring-1 ring-white/20 hover:ring-primary/40
-                         bg-gradient-to-r from-white/10 via-white/5 to-white/10
-                         transition-all hover:scale-105"
-              aria-label="Filter"
-            >
-              <FilterIcon size={16} className="text-white/90" />
-              {activeFilterCount > 0 && totalResults !== undefined && (
-                <span className="ml-1.5 px-1.5 py-0.5 bg-primary text-white text-xs font-semibold rounded-full">
-                  {totalResults}
-                </span>
-              )}
-            </button>
-          </div>
+          {/* Filter Button Group */}
+          <button
+            onClick={() => setIsFilterModalOpen(true)}
+            className="relative flex items-center justify-center gap-2 rounded-full ring-1 ring-white/20 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-xl h-9 sm:h-10 px-3 sm:px-4 hover:ring-primary/40 transition-all"
+            aria-label="Filter"
+          >
+            <FilterIcon size={16} className="text-white/90" />
+            {activeFilterCount > 0 && (
+              <span className="px-1.5 py-0.5 bg-primary text-white text-xs font-semibold rounded-full">
+                {totalResults}
+              </span>
+            )}
+            {activeFilterCount > 0 && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent modal from opening
+                  if (onFiltersChange) {
+                    onFiltersChange({ domains: [], authors: [], tags: [] });
+                  }
+                }}
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/90 text-white transition-transform hover:scale-110 cursor-pointer"
+                aria-label="Clear all filters"
+                title="Clear all filters"
+              >
+                <ClearIcon size={12} />
+              </span>
+            )}
+          </button>
 
           {/* Search Form - Takes remaining width */}
           <form
@@ -74,20 +84,6 @@ export function CoursesSearch({ children, onFiltersChange, activeFilters, totalR
                          ring-1 ring-white/20 focus-within:ring-primary/40
                          bg-gradient-to-r from-white/10 via-white/5 to-white/10"
             >
-              {activeFilterCount > 0 && (
-                <button
-                  onClick={() => {
-                    if (onFiltersChange) {
-                      onFiltersChange({ domains: [], authors: [], tags: [] });
-                    }
-                  }}
-                  className="mr-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500/20 text-red-500 transition-colors hover:bg-red-500/40"
-                  aria-label="Clear all filters"
-                  title="Clear all filters"
-                >
-                  <ClearIcon size={16} />
-                </button>
-              )}
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
