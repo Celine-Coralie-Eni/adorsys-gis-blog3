@@ -2,7 +2,7 @@
 title: How to Add a Blog Post
 slug: how-to-add-blog-post
 lang: en
-authors: generated-guide
+authors: christian-leghadjeu
 tags: [documentation, guide, git, contribution]
 description: A comprehensive guide on how to contribute a blog post to the application, from forking the repository to opening a pull request.
 date: '2025-12-10'
