@@ -23,9 +23,40 @@ resource "aws_ecr_repository" "main" {
   }
 }
 
-# Push Docker image to ECR (This will be handled by GitHub Actions in a real CI/CD pipeline)
+# Push Docker image to ECR
 locals {
   repo_url = aws_ecr_repository.main.repository_url
+}
+
+data "archive_file" "source" {
+  type        = "zip"
+  source_dir  = ".."
+  output_path = "/tmp/source.zip"
+  excludes = [
+    ".terraform",
+    ".git",
+    "terraform/.terraform.lock.hcl",
+    "node_modules",
+    ".next"
+  ]
+}
+
+resource "null_resource" "docker_push" {
+  depends_on = [aws_ecr_repository.main]
+
+  triggers = {
+    source_code_hash = data.archive_file.source.output_sha
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${local.repo_url}
+      cd ..
+      docker build -t ${local.repo_url}:latest .
+      docker push ${local.repo_url}:latest
+      cd terraform
+    EOT
+  }
 }
 
 # Lambda from ECR image + Function URL
@@ -62,14 +93,13 @@ resource "aws_lambda_function" "web" {
 
   environment {
     variables = {
-      NODE_ENV             = "production"
-      PORT                 = "3000"
-      AWS_LWA_INVOKE_MODE  = "buffered"
-      NEXT_PUBLIC_BASE_URL = aws_lambda_function_url.web.function_url
+      NODE_ENV            = "production"
+      PORT                = "3000"
+      AWS_LWA_INVOKE_MODE = "buffered"
     }
   }
 
-  depends_on = [aws_iam_role_policy_attachment.lambda_basic]
+  depends_on = [aws_iam_role_policy_attachment.lambda_basic, null_resource.docker_push]
 }
 
 resource "aws_lambda_function_url" "web" {
