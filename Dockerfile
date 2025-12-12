@@ -8,9 +8,7 @@ RUN yarn install --frozen-lockfile
 ############## Build ##############
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN corepack enable
-RUN yarn install --frozen-lockfile
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV CI=false
 RUN yarn build
