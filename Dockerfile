@@ -1,17 +1,17 @@
 ############## Dependencies ##############
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN corepack enable
-RUN yarn install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 ############## Build ##############
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 ENV CI=false
-RUN yarn build
+RUN npm run build
 
 ############## Runtime (Lambda container) ##############
 FROM node:20-alpine AS runner
