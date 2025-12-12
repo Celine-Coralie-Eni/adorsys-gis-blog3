@@ -2,12 +2,14 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json yarn.lock ./
+RUN corepack enable
 RUN yarn install --frozen-lockfile
 
 ############## Build ##############
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json yarn.lock ./
+RUN corepack enable
 RUN yarn install --frozen-lockfile
 COPY . .
 ENV CI=false
