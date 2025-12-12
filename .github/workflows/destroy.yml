@@ -43,11 +43,6 @@ jobs:
           echo "TF_VAR_project_name=adorsys-gis-blog3-${{ inputs.environment }}" >> $GITHUB_ENV
           echo "TF_VAR_aws_region=${{ vars.AWS_REGION }}" >> $GITHUB_ENV
 
-      # You will need to add any sensitive variables your application requires here.
-      # For example:
-      # - name: Set Sensitive Variables
-      #   run: |
-      #     echo "TF_VAR_database_url=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
 
       - name: Create Backend Configuration
         run: |

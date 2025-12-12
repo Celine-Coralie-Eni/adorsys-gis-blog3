@@ -72,17 +72,3 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: terraform apply -auto-approve plan.tfplan
 
-      - name: Update NEXTAUTH_URL Variable and Lambda Environment
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          CF_URL=$(terraform output -raw cloudfront_url)
-          echo "Updating NEXTAUTH_URL to $CF_URL"
-          gh variable set NEXTAUTH_URL --body "$CF_URL" --env ${{ inputs.environment }} || echo "Failed to update GitHub variable, continuing..."
-
-          # You will need to update the Lambda environment variables with your application's requirements.
-          FUNCTION_NAME="adorsys-gis-blog3-${{ inputs.environment }}"
-          aws lambda update-function-configuration \
-            --function-name "$FUNCTION_NAME" \
-            --environment "Variables={PORT=3000,RUST_LOG=info,AWS_LWA_INVOKE_MODE=buffered,NEXTAUTH_URL=$CF_URL}"
